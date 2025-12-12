@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XOX</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<h2>XOX</h2>
+<div id="turn">Sıra: X</div>
+
+<div class="game-area">
+    <div class="grid" id="board"></div>
+    
+    <div id="scoreboard">
+        <h3>Skor Tablosu</h3>
+        <p><span>Oyuncu X:</span> <span id="scoreX">0</span></p>
+        <p><span>Oyuncu O:</span> <span id="scoreO">0</span></p>
+        <p><span>Berabere:</span> <span id="scoreDraws">0</span></p>
+    </div>
+</div>
+
+<div class="buttons">
+    <button onclick="goToMenu()">Ana Menü</button>
+    <button onclick="reset()">Yeniden Başlat</button>
+</div>
+
+<script>
+// JavaScript kodu aynı kalmıştır, sadece CSS güncellenmiştir.
+let scores = { X: 0, O: 0, draw: 0 }; 
+
+let turn = "X";
+let board = Array(9).fill("");
+
+const boardEl = document.getElementById("board");
+const turnEl = document.getElementById("turn");
+const scoreXEl = document.getElementById("scoreX");
+const scoreOEl = document.getElementById("scoreO");
+const scoreDrawsEl = document.getElementById("scoreDraws");
+
+function draw(){
+    boardEl.innerHTML = "";
+    board.forEach((v, i) => {
+        let c = document.createElement("div");
+        c.className = "cell " + v; 
+        c.textContent = v;
+        c.onclick = () => move(i);
+        boardEl.appendChild(c);
+    });
+}
+
+function updateScoreboard() {
+    scoreXEl.textContent = scores.X;
+    scoreOEl.textContent = scores.O;
+    scoreDrawsEl.textContent = scores.draw;
+}
+
+function move(i){
+    if(board[i] || winner()) return; 
+
+    board[i] = turn;
+    draw(); 
+
+    const currentWinner = winner();
+    
+    if (currentWinner) {
+        scores[currentWinner]++;
+        turnEl.textContent = "🏆 Kazanan: " + currentWinner + "!";
+        updateScoreboard();
+    } else if (board.every(cell => cell !== "")) {
+        scores.draw++;
+        turnEl.textContent = "🤝 Oyun Berabere!";
+        updateScoreboard();
+    } else {
+        turn = turn === "X" ? "O" : "X";
+        turnEl.textContent = "Sıra: " + turn;
+    }
+}
+
+function winner(){
+    const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    for(let [a,b,c] of wins)
+        if(board[a] && board[a] == board[b] && board[b] == board[c]) return board[a];
+    return null;
+}
+
+function reset(){ 
+    board = Array(9).fill(""); 
+    turn = "X"; 
+    turnEl.textContent = "Sıra: " + turn; 
+    draw(); 
+}
+
+function goToMenu() {
+    window.location.href = "../index.html";
+}
+
+draw();
+updateScoreboard();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>üçtaş</title>
+<style>
+  :root{ --size: 360px; }
+  body{ font-family: Arial, Helvetica, sans-serif; display:flex; gap:24px; padding:24px; background:#0f172a; color:#e6eef8; position:relative; }
+  .wrap{ display:flex; gap:24px; }
+  .board{ width:var(--size); height:var(--size); display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr); gap:6px; background:#17233b; padding:6px; border-radius:12px; box-shadow:0 6px 30px rgba(2,6,23,0.7); position:relative; }
+  .cell{ background:linear-gradient(180deg,#0c1727,#08121b); border-radius:8px; display:flex; align-items:center; justify-content:center; position:relative; cursor:pointer; user-select:none; font-weight:700; font-size:20px; color:#8aa4c7; }
+  .cell[data-owner="1"]{ box-shadow: inset 0 0 0 4px rgba(29,78,216,0.12); }
+  .cell[data-owner="2"]{ box-shadow: inset 0 0 0 4px rgba(236,72,153,0.08); }
+  .token{ width:64px; height:64px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:20px; }
+  .p1{ background:linear-gradient(180deg,#2563eb,#1d4ed8); color:white; }
+  .p2{ background:linear-gradient(180deg,#fb7185,#f43f5e); color:white; }
+  .sidebar{ width:320px; }
+  h2{ margin:6px 0 10px; }
+  .cards{ display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+  .card{ width:70px; height:44px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:#0b1220; border:2px dashed rgba(255,255,255,0.03); cursor:default; }
+  .controls{ margin-top:12px; display:flex; gap:8px; }
+  button{ padding:8px 10px; border-radius:8px; border:none; cursor:pointer; font-weight:700; }
+  button.primary{ background:#16a34a; color:white; }
+  button.warn{ background:#f59e0b; color:white; }
+  .log{ margin-top:10px; max-height:240px; overflow:auto; background:rgba(255,255,255,0.02); padding:8px; border-radius:8px; font-size:13px; }
+  .info{ font-size:14px; color:#9fb2cf; }
+  .small{ font-size:13px; color:#a7bed9; }
+
+.scoreBox h2{
+  margin: 0 0 10px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: .5px;
+}
+
+.score-row{
+  display:flex;
+  justify-content:space-between;
+  padding:10px 14px;
+  background:rgba(255,255,255,0.06);
+  border-radius:10px;
+  margin-bottom:8px;
+  font-size:18px;
+  font-weight:700;
+}
+
+.p1tag{ color:#3b82f6; }
+.p2tag{ color:#ef4444; }
+
+  /* arrows */
+  #moveArrows{ position:absolute; display:none; gap:6px; flex-direction:column; align-items:center; pointer-events:auto; z-index:50; }
+  #moveArrows .mv{ width:28px; height:28px; border-radius:6px; border:none; background:rgba(255,255,255,0.06); color:#fff; cursor:pointer; font-weight:700; }
+  #scoreBoard{ margin-top:10px; font-size:16px; text-align:center; }
+  .scoreBox{
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #1e293b, #0f172a);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+  color: white;
+  margin-top: 12px;
+  text-align:center;
+}
+.buton{
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  transition: 0.2s;
+  color: white;
+}
+.A{background: #00ff15;}
+.B{background: #ff0000;}
+.C{background: #8c00ff;}
+
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div style="position:relative;">
+      <div class="board" id="board"></div>
+      <div class="info small" style="margin-top:8px">Sıra: <span id="turnText">1. Oyuncu yerleştiriyor</span></div>
+      <div id="moveArrows">
+        <button class="mv" data-dir="up">▲</button>
+        <div style="display:flex; gap:6px; margin-top:4px;">
+          <button class="mv" data-dir="left">◀</button>
+          <button class="mv" data-dir="right">▶</button>
+        </div>
+        <button class="mv" data-dir="down" style="margin-top:4px">▼</button>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <h2>Oyuncular</h2>
+      <div class="info">Her oyuncunun 3 kartı var. Kartları sırayla boş hücrelere koyun.</div>
+      <div class="cards" id="p1cards"></div>
+      <div class="cards" id="p2cards"></div>
+
+      <div class="controls">
+        <button id="resetBtn" class = "buton A">Yeni Tur</button>
+        <button id="resetAllBtn"class = "buton B">Yeniden Başlat</button>
+        <button id="autoPlay" class="warn">Otomatik Yerleştir</button>
+        <button onclick="goMenu()" class="buton C">Ana Menü</button>
+      </div>
+        <div id="log" class="log"></div>
+    </div>
+    <div class="scoreBox">
+  <h2>Skor Tablosu</h2>
+  <div class="score-row">
+    <span class="p1tag">🔵 Oyuncu 1</span>
+    <span id="p1score">0</span>
+  </div>
+  <div class="score-row">
+    <span class="p2tag">🔴 Oyuncu 2</span>
+    <span id="p2score">0</span>
+  </div>
+</div>
+
+  </div>
+
+<script>
+// Oyun durumu
+const boardEl = document.getElementById('board');
+const p1cardsEl = document.getElementById('p1cards');
+const p2cardsEl = document.getElementById('p2cards');
+const resetBtn = document.getElementById('resetBtn');
+const resetAllBtn = document.getElementById('resetAllBtn');
+const autoPlayBtn = document.getElementById('autoPlay');
+const logEl = document.getElementById('log');
+const turnText = document.getElementById('turnText');
+const moveArrows = document.getElementById('moveArrows');
+
+let board = Array(3).fill(null).map(()=>Array(3).fill(null)); // null veya {owner:1|2, id, order}
+let p1cards = [{id:'A1'},{id:'A2'},{id:'A3'}];
+let p2cards = [{id:'B1'},{id:'B2'},{id:'B3'}];
+let currentPlayer = 1; // 1 veya 2
+let placedCount = 0;
+let placeOrder = []; // sıralı yerleştirme id listesi
+let nextPlaceId = 1;
+let selectedCard = null; // {r,c}
+let gameOver = false;
+let score = {1:0,2:0};
+
+function log(text){ const p=document.createElement('div'); p.textContent=text; logEl.prepend(p); }
+
+function renderBoard(){ boardEl.innerHTML='';
+  for(let r=0;r<3;r++){
+    for(let c=0;c<3;c++){
+      const cell=document.createElement('div');
+      cell.className='cell';
+      cell.dataset.r = r; cell.dataset.c = c;
+      const v = board[r][c];
+      if(v){
+        cell.dataset.owner = v.owner;
+        const token = document.createElement('div');
+        token.className = 'token ' + (v.owner===1? 'p1':'p2');
+        token.textContent = v.id;
+        cell.appendChild(token);
+      }
+      // click: handle placement, selection or destination
+      cell.addEventListener('click', (e)=> onCellClick(r,c));
+      boardEl.appendChild(cell);
+    }
+  }
+}
+
+function renderCards(){
+  p1cardsEl.innerHTML=''; p2cardsEl.innerHTML='';
+  p1cards.forEach((c,idx)=>{ const d=document.createElement('div'); d.className='card'; d.textContent=c.id; p1cardsEl.appendChild(d); });
+  p2cards.forEach((c,idx)=>{ const d=document.createElement('div'); d.className='card'; d.textContent=c.id; p2cardsEl.appendChild(d); });
+}
+
+function updateTurnText(){
+  if(placedCount<6) turnText.textContent = currentPlayer + '. Oyuncu yerleştiriyor';
+  else if(!gameOver) turnText.textContent = currentPlayer + '. Oyuncu hareket ediyor';
+}
+
+function resetGame(resetScore=false){
+  board = Array(3).fill(null).map(()=>Array(3).fill(null));
+  p1cards = [{id:'A1'},{id:'A2'},{id:'A3'}];
+  p2cards = [{id:'B1'},{id:'B2'},{id:'B3'}];
+  currentPlayer = 1; placedCount=0; placeOrder=[]; nextPlaceId=1; selectedCard=null; gameOver=false;
+
+  if(resetScore){
+    score = {1:0,2:0};
+  }
+
+  logEl.innerHTML=''; 
+  log('Oyun sıfırlandı.');
+  renderBoard();
+  renderCards();
+  updateTurnText();
+  hideArrows();
+
+  // -> Mutlaka DOM'u güncelle
+  updateScoreBoard();
+}
+
+function directionFor(r,c){ if(c===0) return [0,1]; if(c===2) return [0,-1]; if(r===0) return [1,0]; if(r===2) return [-1,0]; return [0,1]; }
+
+function checkWin(){
+  // satırlar
+  for(let r=0;r<3;r++){
+    const a = board[r][0], b = board[r][1], c = board[r][2];
+    if(a && b && c && a.owner===b.owner && b.owner===c.owner) return a.owner;
+  }
+  // sütunlar
+  for(let c=0;c<3;c++){
+    const a = board[0][c], b = board[1][c], c2 = board[2][c];
+    if(a && b && c2 && a.owner===b.owner && b.owner===c2.owner) return a.owner;
+  }
+  return null;
+}
+function updateScoreBoard(){
+  document.getElementById("p1score").textContent = score[1];
+  document.getElementById("p2score").textContent = score[2];
+}
+
+function announceWinner(owner){
+  log('Oyun Bitti! Kazanan Oyuncu ' + owner);
+  document.getElementById('turnText').textContent = 'Oyun Bitti — Kazanan: ' + owner;
+  gameOver = true;
+  score[owner]++;
+  updateScoreBoard();
+}
+
+// Yerleştirme ve hareket mantığı
+function onCellClick(r,c){
+  if(gameOver) return;
+  // yerleştirme aşaması
+  if(placedCount < 6){
+    if(board[r][c]){ log('Bu hücre dolu.'); return; }
+    if(currentPlayer===1){
+      const card = p1cards.shift();
+      board[r][c] = { owner:1, id:card.id, order: nextPlaceId++ };
+      placeOrder.push({r,c,owner:1,order:board[r][c].order});
+      log('1. oyuncu ' + card.id + ' kartını ('+r+','+c+') konumuna koydu.');
+      currentPlayer = 2;
+    } else {
+      const card = p2cards.shift();
+      board[r][c] = { owner:2, id:card.id, order: nextPlaceId++ };
+      placeOrder.push({r,c,owner:2,order:board[r][c].order});
+      log('2. oyuncu ' + card.id + ' kartını ('+r+','+c+') konumuna koydu.');
+      currentPlayer = 1;
+    }
+    placedCount++;
+    // ** hemen kazanan var mı kontrol et **
+    const wAfterPlace = checkWin();
+    if(wAfterPlace){ announceWinner(wAfterPlace); renderBoard(); return; }
+
+    if(placedCount===6){ log('Tüm kartlar yerleşti. Artık ister oklarla ister hücreye tıklayarak hareket edebilirsin.'); }
+    updateTurnText(); renderBoard(); renderCards();
+    return;
+  }
+
+  // hareket aşaması
+  const cell = board[r][c];
+  // Eğer daha önce bir kart seçildiyse ve tıklanan hücre boş ise: hedef seçme yöntemi
+  if(selectedCard){
+    if(cell){ log('Hedef hücre dolu.'); hideArrows(); selectedCard=null; return; }
+    // hedef yalnızca 1 adım uzak olmalı (manhattan distance = 1) ve çapraz olmamalı
+    const {r:sr,c:sc} = selectedCard;
+    const dist = Math.abs(sr - r) + Math.abs(sc - c);
+    if(dist !== 1){ log('Sadece yanındaki hücreye 1 adım ilerleyebilirsin (çapraz hareket yasak).'); hideArrows(); selectedCard=null; return; }
+    // taşı
+    board[r][c] = board[sr][sc];
+    board[sr][sc] = null;
+    log(`Oyuncu ${currentPlayer} kartını (${sr},${sc}) → (${r},${c}) taşıdı (hedef yöntemi).`);
+    selectedCard = null; hideArrows();
+    const w = checkWin(); if(w){ announceWinner(w); renderBoard(); return; }
+    currentPlayer = currentPlayer===1?2:1; updateTurnText(); renderBoard(); return;
+  }
+
+  // Eğer tıklanan kart yoksa boş hücre tıklanmış demektir
+  if(!cell){ log('Boş hücre tıklandı. Kart seçmek için kendi kartına tıkla.'); return; }
+  // kart varsa ve sahibi değilse uyar
+  if(cell.owner !== currentPlayer){ log('Bu senin kartın değil.'); return; }
+
+  // seç: tıklanan kendi kartı => okları göster (oklarla hareket) ve seçili kart olarak sakla
+  selectedCard = {r,c};
+  showArrowsOverCell(r,c);
+}
+
+function showArrowsOverCell(r,c){
+  const parent = boardEl.parentElement; // parent relatif konumlu div
+  const parentRect = parent.getBoundingClientRect();
+  const cellEl = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+  if(!cellEl) return;
+  const cellRect = cellEl.getBoundingClientRect();
+  // pozisyonu parent'e göre ayarla: cell's center relative to parent
+  const left = cellRect.left - parentRect.left + (cellRect.width - moveArrows.offsetWidth)/2;
+  const top  = cellRect.top  - parentRect.top  + (cellRect.height - moveArrows.offsetHeight)/2;
+  moveArrows.style.left = Math.max(0, left) + 'px';
+  moveArrows.style.top  = Math.max(0, top)  + 'px';
+  moveArrows.style.display = 'flex';
+}
+
+function hideArrows(){ moveArrows.style.display='none'; }
+{ moveArrows.style.display='none'; }
+
+// oklarla hareket
+moveArrows.querySelectorAll('.mv').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    if(gameOver || !selectedCard) return;
+    const {r,c} = selectedCard;
+    let dr=0, dc=0;
+    const d = btn.dataset.dir;
+    if(d==='up') dr=-1;
+    if(d==='down') dr=1;
+    if(d==='left') dc=-1;
+    if(d==='right') dc=1;
+    const nr = r + dr, nc = c + dc;
+    if(nr<0 || nr>2 || nc<0 || nc>2){ log('Dışarı çıkamaz'); return; }
+    if(board[nr][nc]){ log('Önü dolu'); return; }
+    // taşı
+    board[nr][nc] = board[r][c];
+    board[r][c] = null;
+    log(`Oyuncu ${currentPlayer} kartı (${r},${c}) → (${nr},${nc}) taşıdı (ok ile).`);
+    hideArrows(); selectedCard = null;
+    const w = checkWin(); if(w){ announceWinner(w); renderBoard(); return; }
+    currentPlayer = currentPlayer===1?2:1; updateTurnText(); renderBoard();
+  });
+});
+
+// otomatik yerleştirme (demo)
+function autoPlace(){
+  resetGame(); // skor hariç board temizlendi
+  const empties = [];
+  for(let r=0;r<3;r++) for(let c=0;c<3;c++) empties.push([r,c]);
+
+  for(let i=0;i<6;i++){
+    const idx = Math.floor(Math.random()*empties.length);
+    const [r,c] = empties.splice(idx,1)[0];
+
+    // sırayla oyuncuları belirle
+    currentPlayer = (i % 2 === 0) ? 1 : 2;
+
+    // kartı çek ve yerleştir
+    let card;
+    if(currentPlayer === 1){
+      card = p1cards.shift();
+    } else {
+      card = p2cards.shift();
+    }
+
+    board[r][c] = { owner: currentPlayer, id: card.id, order: nextPlaceId++ };
+    placeOrder.push({ r, c, owner: currentPlayer, order: board[r][c].order });
+
+    log(`${currentPlayer}. oyuncu ${card.id} → (${r},${c})`);
+
+    placedCount++;
+
+    // ⛔️ **HER yerleştirmeden sonra kazanan kontrolü**
+    const w = checkWin();
+    if(w){
+      announceWinner(w);   // skor eklenir
+      renderBoard();
+      updateScoreBoard();  // ← ÖNEMLİ! CASUAL UNUTUYORDUN
+      return; // otomatik yerleştirme biter
+    }
+  }
+
+  // Yerleştirme bittiyse normal oyuna geç
+  currentPlayer = 1; // oyun her zaman 1. oyuncuyla başlar
+  renderBoard();
+  renderCards();
+  updateTurnText();
+}
+
+// event listeners
+resetBtn.addEventListener('click', ()=> resetGame(false));
+resetAllBtn.addEventListener('click', ()=> resetGame(true));
+autoPlayBtn.addEventListener('click', autoPlace);
+
+// init
+resetGame();
+  function goMenu() {
+    window.location.href = "../index.html"; 
+}
+</script>
+</body>
+</html>
