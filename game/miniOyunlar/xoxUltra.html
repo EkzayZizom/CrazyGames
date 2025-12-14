@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ultimate XOX</title>
+  <style>
+    :root {
+      --bg: #0f1216;
+      --board: #1c232b;
+      --cell: #24303a;
+      --accent: #00c2ff;
+      --x: #1100ff;
+      --o: #ff0000;
+      --win: #5fff94;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: #e9eef4;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .container {
+      width: 90vw;          /* ekranın %90'ı */
+      max-width: 420px;     /* masaüstünde en fazla 420px */
+      margin: auto;
+      text-align: center;
+    }
+    .status {
+      margin: 10px 0 16px;
+      font-weight: 600;
+      letter-spacing: .2px;
+    }
+.big {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 12px;
+  justify-content: center;
+}
+
+.small {
+  width: 120px;
+  height: 120px;
+  background: var(--board);
+  border-radius: 10px;
+  padding: 4px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  position: relative;
+  border: 2px solid #3a4752;
+}
+
+.cell {
+  width: 36px;
+  height: 36px;
+  background: var(--cell);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 800;
+  cursor: pointer;
+  user-select: none;
+}
+
+    .cell:active {
+      transform: scale(0.92);
+      background: #2f3c47;
+    }
+    .small.won::after {
+      content: attr(data-winner);
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: clamp(20px, 7vw, 32px);
+      font-weight: 900;
+      color: #fff;
+      background: rgba(87, 255, 129, 0.85);
+      border-radius: 10px;
+    }
+    .small.forced {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .btns {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+    button {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 0;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--accent);
+      color: #00212b;
+    }
+    .x { color: var(--x); }
+    .o { color: var(--o); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="status" id="status">Sıra: X</div>
+    <div id="big" class="big"></div>
+    <div class="btns">
+      <button id="reset">Sıfırla</button>
+      <button onclick="goMenu()">Ana Menü</button>
+    </div>
+  </div>
+
+  <script>
+    const WIN_LINES = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+
+    let currentPlayer, boards, smallWinners, bigWinner, forcedBoardIndex;
+
+    const statusEl = document.getElementById('status');
+    const bigEl = document.getElementById('big');
+    const resetBtn = document.getElementById('reset');
+
+    function init() {
+      currentPlayer = 'X';
+      boards = Array.from({length:9}, () => Array(9).fill(null));
+      smallWinners = Array(9).fill(null);
+      bigWinner = null;
+      forcedBoardIndex = null;
+      render();
+      updateStatus();
+    }
+
+    function updateStatus() {
+      if (bigWinner) {
+        statusEl.textContent = `Kazanan: ${bigWinner}`;
+        return;
+      }
+      const forceText = forcedBoardIndex != null ? ` | Zorunlu tahta: ${forcedBoardIndex+1}` : '';
+      statusEl.innerHTML = `Sıra: <span class="${currentPlayer.toLowerCase()}">${currentPlayer}</span>${forceText}`;
+    }
+
+    function checkWinner(cells) {
+      for (const [a,b,c] of WIN_LINES) {
+        const v = cells[a];
+        if (v && v === cells[b] && v === cells[c]) return v;
+      }
+      return null;
+    }
+
+    function isFull(cells) { return cells.every(v => v); }
+
+    function canPlay(boardIdx, cellIdx) {
+      if (bigWinner) return false;
+      if (smallWinners[boardIdx]) return false;
+      if (boards[boardIdx][cellIdx]) return false;
+      if (forcedBoardIndex == null) return true;
+      if (forcedBoardIndex === boardIdx) return true;
+      const closed = smallWinners[forcedBoardIndex] || isFull(boards[forcedBoardIndex]);
+      return closed;
+    }
+
+    function handleClick(boardIdx, cellIdx) {
+      if (!canPlay(boardIdx, cellIdx)) return;
+
+      boards[boardIdx][cellIdx] = currentPlayer;
+
+      const sw = checkWinner(boards[boardIdx]);
+      if (sw && !smallWinners[boardIdx]) {
+        smallWinners[boardIdx] = sw;
+      } else if (!sw && isFull(boards[boardIdx])) {
+        smallWinners[boardIdx] = 'D';
+      }
+
+      const virtualBig = smallWinners.map(v => (v === 'X' || v === 'O') ? v : null);
+      bigWinner = checkWinner(virtualBig);
+
+      forcedBoardIndex = cellIdx;
+      if (smallWinners[forcedBoardIndex] || isFull(boards[forcedBoardIndex])) {
+        forcedBoardIndex = null;
+      }
+
+      currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+
+      render();
+      updateStatus();
+    }
+
+    function render() {
+      bigEl.innerHTML = '';
+      for (let b = 0; b < 9; b++) {
+        const small = document.createElement('div');
+        small.className = 'small';
+        if (smallWinners[b] && smallWinners[b] !== 'D') {
+          small.classList.add('won');
+          small.dataset.winner = smallWinners[b];
+        }
+        if (forcedBoardIndex === b) small.classList.add('forced');
+
+        for (let c = 0; c < 9; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          const val = boards[b][c];
+          if (val) {
+            cell.textContent = val;
+            cell.classList.add(val.toLowerCase());
+            cell.style.cursor = 'default';
+          }
+          cell.onclick = () => handleClick(b, c);
+          small.appendChild(cell);
+        }
+        bigEl.appendChild(small);
+      }
+    }
+
+    resetBtn.onclick = init;
+    init();
+      function goMenu() {
+    window.location.href = "../../index.html"; 
+}
+  </script>
+</body>
+</html>

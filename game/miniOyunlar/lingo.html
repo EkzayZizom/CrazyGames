@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Lingo</title>
+<style>
+  :root{
+    --bg:#0b1220; --panel:#071025; --muted:#9aa4b2;
+    --green:#16a34a; --yellow:#f59e0b; --gray:#6b7280; --tile:#0f1724;
+    --accent:#06b6d4; --glass: rgba(255,255,255,0.03);
+    --gap:8px; --pad:12px;
+  }
+  html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;color:#e6eef8;background:linear-gradient(180deg,#02101a 0%, #081328 100%);}
+  .app{max-width:920px;margin:0 auto;padding:16px;box-sizing:border-box;min-height:100vh;display:flex;flex-direction:column}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .title{font-weight:800;font-size:18px}
+  .sub{font-size:13px;color:var(--muted)}
+  .controls{display:flex;gap:8px;align-items:center}
+  button{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:10px;color:inherit;font-weight:700}
+  main{margin-top:16px;display:flex;flex-direction:column;align-items:center;gap:12px}
+
+  /* board */
+  .board{display:grid;gap:8px}
+  .row{display:flex;gap:8px}
+  .tile{width:56px;height:56px;border-radius:8px;background:var(--tile);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;letter-spacing:3px;user-select:none;box-shadow:0 4px 14px rgba(0,0,0,0.5) inset}
+
+  .tile.filled{background:#0b1724}
+  .tile.green{background:linear-gradient(180deg,var(--green),#0b6e3b);color:white}
+  .tile.yellow{background:linear-gradient(180deg,var(--yellow),#b66f0a);color:#081018}
+  .tile.gray{background:linear-gradient(180deg,var(--gray),#3f3f46);color:white}
+
+  .keyboard{display:grid;gap:8px;justify-items:center;margin-top:8px}
+  .key-row{display:flex;gap:6px}
+  .key{padding:12px 10px;border-radius:8px;background:var(--glass);min-width:34px;text-align:center;font-weight:700;cursor:pointer;user-select:none}
+  .key.wide{min-width:62px}
+
+  .statusBar{display:flex;gap:12px;align-items:center}
+
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:rgba(0,0,0,0.7);padding:10px 16px;border-radius:10px;color:white}
+
+  .small{font-size:13px;color:var(--muted)}
+
+  /* responsive */
+  @media (max-width:520px){
+    .tile{width:44px;height:44px;font-size:18px}
+    main{padding-bottom:40px}
+  }
+
+  /* animation */
+  .flip{animation:flip 500ms ease forwards}
+  @keyframes flip{
+    0%{transform:rotateX(0);}
+    50%{transform:rotateX(90deg);opacity:0}
+    100%{transform:rotateX(0);opacity:1}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <div class="title">Lingo</div>
+    </div>
+    <div class="controls">
+      <div class="statusBar">
+        <div class="small">Kelime uzunluğu: <strong id="lenLabel">—</strong></div>
+        <div class="small">Hak: <strong id="remaining">—</strong></div>
+      </div>
+      <button id="newBtn">Yeni Oyun</button>
+      <button onclick="goMenu()">Ana Menü</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="boardContainer"></div>
+    <div id="keyboard" class="keyboard"></div>
+  </main>
+</div>
+
+<div id="toast" class="toast" style="display:none"></div>
+
+<script>
+
+// Basit Lingo (4/5/6 harf) — single file
+(function(){
+  
+  // --- KELİME LİSTESİ (words.js dosyasından entegre edildi) ---
+  const WORDS = {
+    4: [
+      "ACİL","AÇIK","ADAK","ADIM","AĞIZ","AĞIR","AYAK","AYAR","AZİM","",
+      "BAKI","BALI","BANA","BARI","BASİ","BATA","BAYI","BEŞİ","BİNA","BİRA",
+      "BİTE","BİZE","BÖCE","ÇAĞI","ÇALI","ÇATI","ÇEŞİ","DAHA","DAĞI","DAVA",
+      "OYUN","DELİ","ADAM","DERİ","DOST","DUYU","DÜZE","ELDE","ELEK","ELMA",
+      "EVET","FARK","FİŞE","GELİ","GECE","GÜNE","GÜÇL","","","HALK",
+      "HANG","HARE","HAYV","HECE","HİLE","İFAZ","İKİŞ","İLKE","İMAJ","İZİN",
+      "KABA","KASA","KATI","KAŞI","KAZI","K","KISA","KİLO","KOLA","KONU",
+      "KOPY","KULA","KUTU","LAMA","LİRA","MAYA","MESE","MİSA","NAKİ","NERE",
+      "NİÇE","NOKA","OMUZ","ONUR","ORAN","PASA","PATI","PEKİ","RAKİ","SABA",
+      "SAAT","SALI","MAVİ","SARI","SIRA","SKOR","SORU","SUCU","","TAKI",
+      "MASA","TARA","TAVA","TEPE","TEMA","TENE","TURA","SAYI","UYAN","UYAR",
+      "UZAĞ","UZUN","VAKİ","VANA","BACA","YALI","YAMA","YANI","YARA","YASA",
+      "ALTI","YAZI","YOLA","YOLU","KOKU","ZAMAN","ZEKA"
+    ],
+
+    5: [
+      "","AHMET","AKTAR","ALBAY","ALGIN","ANLAM","ARABA","ARMUT","ASLAN",
+      "ATLAS","AYDIN","BAHAR","BALIK","BASIT","BAYAT","BEYİN","BİRİM","BİLGİ",
+      "CANLI","CİDDİ","ÇABA","ÇALIŞ","DENGE","DERİN","DOSTU","DUYGU","DÜZEN",
+      "EDEBİ","ETKİN","FARKL","FİKİR","GELEN","GEREK","GÜVEN","GÜZEL","HAKLI",
+      "HALKA","HAREK","HASTA","HAYAT","HİKÂY","İFADE","İLERİ","İNSAN","İŞLEM",
+      "KABUL","KADIN","KALEM","KARGO","KAZAN","KİTAP","KİLİT","KÜLTÜR","LİDER",
+      "MALUM","MERAK","MESAJ","METİN","MUTLU","NAKİT","NARİN","NEFES","NOKTA",
+      "ÖĞREN","ÖRNEK","PARÇA","PEŞİN","RAHAT","RAKAM","SANAT","SAHNE","SEBEP",
+      "SEVGİ","SİNİR","SOKAK","SOMUT","SONRA","TABAN","TATİL","TEMEL","TURNA",
+      "UYARI","UYKU","UZMAN","VAZİF","YAKIN","YASAL","YAYIN","YÜKSEK","ZAMAN"
+    ],
+
+    6: [
+      "ADAYLI","BİTTER","MEVSİM","AKILLI","ALINAN","ALTINI","ANLAMLI",
+      "ARMUTÇU","BAĞIMS","BAKIMLI","BALMUMU","BANKA","BARDAK","BALKON","BAŞARI",
+      "BİLGİLİ","BİRLİK","ÇALIŞI","ÇEKİCİ","ÇİFTLİ","DEĞERLİ","DERİNCE","DİNLENİ",
+      "DOSTLUK","DUYARLI","DÜŞÜNCE","EDEBİLİ","EĞLENCE","EKONOMİ","ELEMANI","EMANETİ",
+      "ENGELS","ESKİDEN","ETKİLİL","FABRİKA","FARKLI","FOTOĞRA","GELİŞME","GEREKLİ",
+      "GÖRÜNME","GÜVENİL","GÜZELLİ","HAREKETİ","HASTALI","HAYATÇA","HİKÂYEL","İFADELİ",
+      "İLETİŞİ","İNSANCA","İŞLEMCİ","KADINCA","KALICIL","KARGOLU","KASIMLI","KEDİCİK",
+      "KİTAPÇI","KONUŞMA","KORUNMA","KURTULU","LİDERLİ","MAKALEL","MALZEME", "MANEVİ" , "MERAKLI",
+      "MUTLULU","NİTELİK","NOKTALI","ÖĞRENÇİ","ÖNEMLİ","OYUNCUL","PAZARLA","RAHATLİ",
+      "SEÇKİN","SEVGİLİ","SİNİRLİ","SOSYALL","SÜRATLİ","TASARIM","TECRÜBE","TİCARİL",
+      "UYUMLU","UZAKLAŞ","UZMANLI","VERİMLİ","YAKINLA","YAPILMA","YASALAR","YENİLİK"
+    ]
+  };
+
+  // Harici dosyadan kopyalanan kelime listesini oyun içinde doğru formata dönüştür
+  for (const len in WORDS) {
+    WORDS[len] = WORDS[len].map(w => w.normalize('NFC').toUpperCase());
+  }
+  // --- KELİME LİSTESİ SONU ---
+
+  const boardContainer = document.getElementById('boardContainer');
+  const keyboardEl = document.getElementById('keyboard');
+  const newBtn = document.getElementById('newBtn');
+  const lenLabel = document.getElementById('lenLabel');
+  const remainingEl = document.getElementById('remaining');
+  const toast = document.getElementById('toast');
+
+  let target = '';
+  let L = 5;
+  let maxAttempts = 0;
+  let grid = []; 
+  let currentRow = 0;
+  let currentCol = 0;
+  let gameOver = false;
+  const keyboardState = {};
+
+  function pickRandomLength(){
+    const choices = [4,5,6];
+    return choices[Math.floor(Math.random()*choices.length)];
+  }
+
+  function pickWord(len){
+    const arr = WORDS[len].filter(w=>w.length===len);
+    // Eğer filtreleme sonrası boş kalırsa, listede uzunluk problemi vardır.
+    if (arr.length === 0) {
+        // Fallback: Eğer listede uygun kelime yoksa, TEST kelimesini kullan
+        return 'TEST'.slice(0,len).padEnd(len, 'X'); 
+    }
+    return arr[Math.floor(Math.random()*arr.length)].toUpperCase();
+  }
+
+  function startGame(){
+    L = pickRandomLength();
+    target = pickWord(L);
+    
+    // Güvenlik kontrolü
+    if(!target || target.length !== L){
+      target = 'TEST'.slice(0,L).padEnd(L, 'X');
+    }
+    
+    maxAttempts = L + 2; 
+    grid = Array.from({length:maxAttempts}, ()=>Array.from({length:L}, ()=>({letter:'',state:''})));
+    currentRow = 0; currentCol = 0; gameOver = false; 
+    Object.keys(keyboardState).forEach(k=>keyboardState[k]='');
+    renderBoard(); renderKeyboard(); updateInfo();
+    showToast(`Yeni oyun başladı — ${L} harfli kelime. İyi oyun!`,1200);
+    // console.log('target',target); 
+  }
+
+  function renderBoard(){
+    boardContainer.innerHTML = '';
+    const board = document.createElement('div');
+    board.className = 'board';
+    board.style.gridTemplateRows = `repeat(${maxAttempts}, auto)`;
+    for(let r=0;r<maxAttempts;r++){
+      const row = document.createElement('div'); row.className='row';
+      for(let c=0;c<L;c++){
+        const tile = document.createElement('div'); 
+        tile.className='tile'; 
+        tile.id = `tile-${r}-${c}`;
+        tile.textContent = grid[r][c].letter || '';
+        
+        if(grid[r][c].letter) tile.classList.add('filled');
+
+        if(grid[r][c].state) tile.classList.add(grid[r][c].state);
+        row.appendChild(tile);
+      }
+      board.appendChild(row);
+    }
+    boardContainer.appendChild(board);
+  }
+
+  const KEY_LAYOUT = [
+    ['Q','W','E','R','T','Y','U','I','O','P','Ğ','Ü'],
+    ['A','S','D','F','G','H','J','K','L','Ş','İ'],
+    ['Z','X','C','V','B','N','M','Ö','Ç']
+  ];
+
+  function renderKeyboard(){
+    keyboardEl.innerHTML = '';
+    keyboardEl.style.gridTemplateRows = `repeat(${KEY_LAYOUT.length}, auto)`;
+    for(const row of KEY_LAYOUT){
+      const r = document.createElement('div'); r.className='key-row';
+      for(const k of row){
+        const key = document.createElement('div'); key.className='key'; key.textContent = k;
+        key.addEventListener('click', ()=>onKey(k));
+        // color state
+        if(keyboardState[k]) key.style.background = `var(--${keyboardState[k]})`;
+        r.appendChild(key);
+      }
+      keyboardEl.appendChild(r);
+    }
+    // bottom actions
+    const actionRow = document.createElement('div'); actionRow.className='key-row';
+    const enter = document.createElement('div'); enter.className='key wide'; enter.textContent='ENTER'; enter.addEventListener('click', ()=>onEnter());
+    const back = document.createElement('div'); back.className='key wide'; back.textContent='DEL'; back.addEventListener('click', ()=>onDelete());
+    actionRow.appendChild(enter); actionRow.appendChild(back);
+    keyboardEl.appendChild(actionRow);
+  }
+
+  function onKey(k){ 
+    if(gameOver) return; 
+    if(currentCol >= L) return; 
+    grid[currentRow][currentCol].letter = k; 
+    currentCol++; 
+    renderBoard(); 
+  }
+  function onDelete(){ 
+    if(gameOver) return; 
+    if(currentCol<=0) return; 
+    currentCol--; 
+    grid[currentRow][currentCol].letter=''; 
+    renderBoard(); 
+  }
+
+  function normalizeStr(s){ return s.normalize('NFC').toUpperCase(); }
+
+  function onEnter(){ 
+    if(gameOver) return; 
+    
+    // Kelime uzunluğu kontrolü
+    if(currentCol !== L){ 
+      showToast(`Eksik kelime: ${L} harf girmelisiniz.`,1100); 
+      return; 
+    }
+
+    const guess = grid[currentRow].map(t=>t.letter).join('');
+    
+    // Kelimeyi değerlendir (Sözlük kontrolü artık YOK)
+    const result = evaluateGuess(guess);
+    
+    // Durumları ve animasyonu uygula
+    for(let i=0;i<L;i++){
+      // grid durumunu ayarla
+      grid[currentRow][i].state = result[i];
+      // DOM elementini al ve flip animasyonunu uygula
+      const tile = document.getElementById(`tile-${currentRow}-${i}`);
+      // 100ms aralıklarla animasyonları sırala
+      setTimeout(()=>{ 
+        tile.classList.add(result[i]); // Rengi hemen uygula
+        tile.classList.add('flip'); 
+      }, i * 100);
+      // Animasyon bittikten sonra flip sınıfını kaldır
+      setTimeout(()=>{ tile.classList.remove('flip'); }, (i*100) + 600);
+    }
+    
+    // Klavye durumunu güncelle
+    for(let i=0;i<L;i++){
+      const k = guess[i];
+      const st = result[i];
+      // green > yellow > gray önceliği
+      if(!keyboardState[k] || (keyboardState[k]==='yellow' && st==='green') || (keyboardState[k]==='' && (st==='yellow'||st==='green')) ) {
+        keyboardState[k]=st;
+      }
+    }
+    
+    // Tüm güncellemelerden sonra klavye ve tahtayı tekrar render et
+    setTimeout(() => {
+      renderBoard(); 
+      renderKeyboard();
+    }, L * 100 + 100); 
+
+    if(result.every(s=>s==='green')){
+      setTimeout(()=>{ 
+        showToast(`Tebrikler! Doğru: ${guess}`, 1600); 
+        gameOver = true; 
+        revealAnswer(true); 
+      }, L * 100 + 650);
+      return;
+    }
+
+    currentRow++; 
+    currentCol = 0;
+    updateInfo();
+    
+    if(currentRow >= maxAttempts){ 
+      setTimeout(()=>{ 
+        gameOver = true; 
+        revealAnswer(false); 
+      }, L * 100 + 650);
+    }
+  }
+
+  // Renk kodlaması (Yeşil, Sarı, Gri)
+  function evaluateGuess(guessRaw){
+    const guess = normalizeStr(guessRaw);
+    const targetArr = target.split('');
+    const guessArr = guess.split('');
+    const res = Array(L).fill('');
+    
+    const targetCounts = {};
+    targetArr.forEach(char => targetCounts[char] = (targetCounts[char] || 0) + 1);
+
+    // 1. Geçiş: Doğru yerde (Green)
+    for(let i=0;i<L;i++){
+      if(guessArr[i] === targetArr[i]){ 
+        res[i]='green'; 
+        targetCounts[guessArr[i]]--; 
+      }
+    }
+    
+    // 2. Geçiş: Yanlış yerde (Yellow) veya yok (Gray)
+    for(let i=0;i<L;i++){
+      if(res[i] === 'green') continue; 
+      
+      const char = guessArr[i];
+      
+      // Kelimede var ama doğru yerde değil (Yellow)
+      if(targetCounts[char] > 0){ 
+        res[i]='yellow'; 
+        targetCounts[char]--; 
+      }
+      // Kelimede hiç yok (Gray)
+      else { 
+        res[i]='gray'; 
+      }
+    }
+    return res;
+  }
+
+
+  function revealAnswer(win){
+    if(win) {
+      // showToast zaten çağrıldı
+    } else {
+      showToast(`Oyunu kaybettiniz. Doğru: ${target}`,2200);
+    }
+  }
+
+  function updateInfo(){ lenLabel.textContent = L; remainingEl.textContent = (maxAttempts - currentRow); }
+
+  function showToast(txt, time=1000){ 
+    toast.textContent = txt; 
+    toast.style.display='block'; 
+    clearTimeout(toast._t); 
+    toast._t = setTimeout(()=>{ toast.style.display='none'; }, time); 
+  }
+
+  // klavye olayları
+  window.addEventListener('keydown', (e)=>{
+    if(gameOver) return;
+    const k = e.key.toUpperCase();
+    if(k === 'ENTER') onEnter();
+    else if(k === 'BACKSPACE' || k==='DELETE' || e.key === 'Backspace') onDelete();
+    else if(k.length===1){
+      // Türkçe büyük harfler
+      const allowed = "ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZ"; 
+      if(allowed.includes(k)) onKey(k);
+    }
+  });
+
+  newBtn.addEventListener('click', ()=>{
+    startGame();
+  });
+
+  // başlangıçta oyunu başlat
+  startGame();
+
+})();
+  function goMenu() {
+    window.location.href = "../../index.html"; 
+}
+</script>
+</body>
+</html>

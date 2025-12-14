@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dino Oyunu</title>
+  <style>
+    :root {
+      --ground-height: 20px;
+      --game-width: 800px;
+      --game-height: 200px;
+      --dino-size: 40px;
+      --cactus-width: 20px;
+      --cactus-height: 40px;
+      --bg: #fff;
+      --fg: #222;
+      --accent: #4caf50;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #f3f4f6;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: #111;
+    }
+
+    .wrap {
+      width: var(--game-width);
+      max-width: 95vw;
+    }
+
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .game {
+      position: relative;
+      width: 100%;
+      height: var(--game-height);
+      background: var(--bg);
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    }
+
+    .ground {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: var(--ground-height);
+      background: repeating-linear-gradient(
+        to right,
+        #ddd,
+        #ddd 10px,
+        #eee 10px,
+        #eee 20px
+      );
+    }
+
+    .dino {
+      position: absolute;
+      left: 60px;
+      bottom: var(--ground-height);
+      width: var(--dino-size);
+      height: var(--dino-size);
+      background: var(--fg);
+      border-radius: 6px;
+      transform: translateY(0);
+    }
+
+    /* Basit “koşma” efekti */
+    .dino::after {
+      content: "";
+      position: absolute;
+      left: 6px;
+      bottom: 6px;
+      width: 8px;
+      height: 8px;
+      background: #fff;
+      border-radius: 2px;
+      animation: blink 0.6s infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    .cactus {
+      position: absolute;
+      bottom: var(--ground-height);
+      width: var(--cactus-width);
+      height: var(--cactus-height);
+      background: var(--accent);
+      border-radius: 4px 4px 0 0;
+    }
+
+    .message {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+      color: #444;
+      font-weight: 600;
+      letter-spacing: .2px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background: #fff;
+      color: #111;
+      cursor: pointer;
+      transition: transform .02s ease-in;
+    }
+    .btn:active { transform: scale(0.98); }
+    .muted { color: #666; }
+    .score { font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hud">
+      <div class="muted">Zıplamak için: Space / ↑</div>
+      <div class="score">Skor: <span id="score">0</span></div>
+      <button class="btn" id="restart">Yeniden Başlat</button>
+    </div>
+
+    <div class="game" id="game">
+      <div class="message" id="msg">Başlamak için Space'e bas</div>
+      <div class="dino" id="dino"></div>
+      <div class="ground"></div>
+    </div>
+  </div>
+
+  <script>
+    // Ayarlar
+    const GAME_WIDTH = 800;          // px
+    const GAME_HEIGHT = 200;         // px
+    const GROUND_HEIGHT = 20;        // px
+    const DINO_SIZE = 40;            // px
+    const GRAVITY = 0.8;             // düşüş ivmesi
+    const JUMP_VELOCITY = 12;        // zıplama hızı
+    const BASE_SPEED = 4;            // engel hızı
+    const SPAWN_MIN = 900;           // ms
+    const SPAWN_MAX = 1600;          // ms
+    const SPEED_INCREMENT = 0.0006;  // zamanla hız artışı
+
+    // Elemanlar
+    const gameEl = document.getElementById('game');
+    const dinoEl = document.getElementById('dino');
+    const msgEl = document.getElementById('msg');
+    const scoreEl = document.getElementById('score');
+    const restartBtn = document.getElementById('restart');
+
+    // Oyun durumları
+    let running = false;
+    let gameOver = false;
+    let score = 0;
+
+    // Dino fizik
+    let dinoY = 0;        // bottom tabanından yükselti (px)
+    let dinoV = 0;        // dikey hız
+    let canJump = true;
+
+    // Engeller
+    const obstacles = new Set();
+
+    // Zamanlayıcılar
+    let lastTime = 0;
+    let speedScale = 1;
+
+    // Başlat
+    function startGame() {
+      // temizle
+      obstacles.forEach(o => o.remove());
+      obstacles.clear();
+      score = 0;
+      updateScore(0);
+      speedScale = 1;
+      dinoY = 0;
+      dinoV = 0;
+      gameOver = false;
+      running = true;
+      msgEl.textContent = '';
+      lastTime = performance.now();
+      spawnLoop();
+      requestAnimationFrame(loop);
+    }
+
+    function endGame() {
+      gameOver = true;
+      running = false;
+      msgEl.textContent = 'Oyun bitti! Yeniden başlat için Space veya butona bas';
+    }
+
+    function updateScore(dt) {
+      score += Math.floor(dt * 0.01);
+      scoreEl.textContent = score;
+    }
+
+    // Ana döngü
+    function loop(now) {
+      const dt = now - lastTime;
+      lastTime = now;
+      if (!running) return;
+
+      // hız ölçeğini azar azar arttır
+      speedScale += dt * SPEED_INCREMENT;
+
+      updateDino(dt);
+      updateObstacles(dt);
+
+      updateScore(dt);
+
+      if (checkCollision()) {
+        endGame();
+        return;
+      }
+      requestAnimationFrame(loop);
+    }
+
+    // Dino güncellemesi
+    function updateDino(dt) {
+      // yer çekimi uygula
+      dinoV -= GRAVITY;
+      dinoY += dinoV;
+
+      if (dinoY <= 0) {
+        dinoY = 0;
+        dinoV = 0;
+        canJump = true;
+      }
+
+      const yPx = Math.max(0, dinoY);
+      dinoEl.style.transform = `translateY(-${yPx}px)`;
+    }
+
+    // Zıplama
+    function jump() {
+      if (!running) {
+        startGame();
+        return;
+      }
+      if (!canJump || gameOver) return;
+      canJump = false;
+      dinoV = JUMP_VELOCITY;
+    }
+
+    // Engeller
+    function spawnObstacle() {
+      const cactus = document.createElement('div');
+      cactus.className = 'cactus';
+      // rastgele boyut
+      const h = 30 + Math.floor(Math.random() * 30);
+      cactus.style.height = h + 'px';
+      cactus.style.left = GAME_WIDTH + 'px';
+      gameEl.appendChild(cactus);
+      obstacles.add(cactus);
+    }
+
+    function updateObstacles(dt) {
+      const speed = BASE_SPEED * speedScale;
+      obstacles.forEach(cactus => {
+        const x = parseFloat(cactus.style.left || GAME_WIDTH);
+        const nx = x - speed;
+        cactus.style.left = nx + 'px';
+        if (nx + cactus.offsetWidth < 0) {
+          obstacles.delete(cactus);
+          cactus.remove();
+        }
+      });
+    }
+
+    function spawnLoop() {
+      if (!running) return;
+      const delay = SPAWN_MIN + Math.random() * (SPAWN_MAX - SPAWN_MIN);
+      setTimeout(() => {
+        if (!running) return;
+        spawnObstacle();
+        spawnLoop();
+      }, delay);
+    }
+
+    // Çarpışma kontrolü (AABB)
+    function checkCollision() {
+      const dinoRect = dinoEl.getBoundingClientRect();
+      for (const cactus of obstacles) {
+        const cRect = cactus.getBoundingClientRect();
+        // basit dikdörtgen çarpışması
+        const overlap = !(
+          dinoRect.right < cRect.left ||
+          dinoRect.left > cRect.right ||
+          dinoRect.bottom < cRect.top ||
+          dinoRect.top > cRect.bottom
+        );
+        if (overlap) return true;
+      }
+      return false;
+    }
+
+    // Kontroller
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.code === 'ArrowUp') {
+        e.preventDefault();
+        if (gameOver) startGame();
+        else jump();
+      }
+    });
+
+    restartBtn.addEventListener('click', () => {
+      startGame();
+    });
+
+    // İlk durum
+    msgEl.textContent = 'Başlamak için Space\'e bas';
+  </script>
+</body>
+</html>

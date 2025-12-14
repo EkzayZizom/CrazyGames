@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XOX</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* XOX için grid */
+.xox-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.xox-cell {
+  width: 90px;
+  height: 90px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 12px;
+  font-size: 40px;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  transition: 0.25s;
+}
+
+.xox-cell:hover {
+  background: var(--bg);
+}
+/* ATARI Teması için CSS */
+    body { 
+        font-family: 'Courier New', monospace;
+        text-align: center; 
+        padding: 20px; 
+        background-color: var(--bg);
+        color: #ff0055;
+        display: block;          /* flex’i iptal eder */
+        align-items: unset;
+    }
+    
+    h2 {
+        color: #00ffaa;
+        text-shadow: 0 0 5px #00ffaa;
+        margin-bottom: 30px;
+    }
+    
+    #turn { 
+        font-size: 2em; 
+        margin-bottom: 20px; 
+        color: #ffff00;
+        -webkit-text-stroke: 0.60px black;
+    }
+    
+    .grid { 
+        display: grid; 
+        grid-template-columns: repeat(3, 80px); 
+        gap: 8px; 
+        border: 4px solid #ff0055;
+        box-shadow: 0 0 15px rgba(255, 0, 85, 0.7);
+        margin-top: 20px;
+        margin: 0 auto;   /* Tam ortaya getirir */
+    }
+    
+    .cell { 
+        width: 80px; 
+        height: 80px; 
+        font-size: 45px; 
+        font-weight: bold;
+        display: flex;
+        justify-content: center; 
+        align-items: center; 
+        background-color: #0d0d5b;
+        cursor: pointer; 
+        transition: background-color 0.1s;
+    }
+    
+    .cell:hover {
+        background-color: #1a1a7a;
+    }
+    
+    .cell.X { color: #ff0055; }
+    .cell.O { color: #00ffaa; }
+
+    
+    .buttons {
+        margin-top: 30px;
+        display: flex;
+        /* BUTONLARI yatayda ORTALAR */
+        justify-content: center; 
+        gap: 15px;
+    }
+
+    button {
+        padding: 10px 20px;
+        font-size: 1.1em;
+        font-family: 'Courier New', monospace;
+        color: #000033; 
+        background-color: #ff0055;
+        border: 3px solid #ffff00;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.2s;
+    }
+    
+    button:hover {
+        background-color: #ffff00;
+        color: #000033;
+        transform: scale(1.05);
+    }
+
+    /* Skor Tablosu Stili */
+    #scoreboard {
+        margin: 40px; /* EN ÖNEMLİ DÜZELTME: Tabloyu dikeyde ve yatayda ortalar */
+        min-width: 200px;
+        padding: 15px;
+        border: 2px solid #00ffaa;
+        color: #ffffff;
+        background-color: #000020;
+        text-align: left; /* İçindeki metni sola yasla */
+    }
+    
+    #scoreboard h3 {
+        margin-top: 0;
+        color: #00ffaa;
+        border-bottom: 1px dashed #333366;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+        text-align: center; /* Başlığı tekrar ortalar */
+    }
+    
+    #scoreboard p {
+        display: flex;
+        justify-content: space-between;
+        margin: 5px 0;
+        font-size: 1.1em;
+    }
+    .game-area {
+  display: flex;              /* yan yana diz */
+  justify-content: center;    /* yatayda ortala */
+  align-items: flex-start;    /* üstten hizala (istersen center yapabilirsiniz) */
+  gap: 40px;                  /* aralarına boşluk bırak */
+  margin-top: 20px;
+}
+    </style>
+</head>
+<body>
+
+<h2>XOX</h2>
+<div id="turn">Sıra: X</div>
+
+<div class="game-area">
+    <div class="grid" id="board"></div>
+    
+    <div id="scoreboard">
+        <h3>Skor Tablosu</h3>
+        <p><span>Oyuncu X:</span> <span id="scoreX">0</span></p>
+        <p><span>Oyuncu O:</span> <span id="scoreO">0</span></p>
+        <p><span>Berabere:</span> <span id="scoreDraws">0</span></p>
+    </div>
+</div>
+
+<div class="buttons">
+    <button onclick="goMenu()">Ana Menü</button>
+    <button onclick="reset()">Yeniden Başlat</button>
+</div>
+<script>
+// JavaScript kodu aynı kalmıştır, sadece CSS güncellenmiştir.
+let scores = { X: 0, O: 0, draw: 0 }; 
+
+let turn = "X";
+let board = Array(9).fill("");
+
+const boardEl = document.getElementById("board");
+const turnEl = document.getElementById("turn");
+const scoreXEl = document.getElementById("scoreX");
+const scoreOEl = document.getElementById("scoreO");
+const scoreDrawsEl = document.getElementById("scoreDraws");
+
+function draw(){
+    boardEl.innerHTML = "";
+    board.forEach((v, i) => {
+        let c = document.createElement("div");
+        c.className = "cell " + v; 
+        c.textContent = v;
+        c.onclick = () => move(i);
+        boardEl.appendChild(c);
+    });
+}
+
+function updateScoreboard() {
+    scoreXEl.textContent = scores.X;
+    scoreOEl.textContent = scores.O;
+    scoreDrawsEl.textContent = scores.draw;
+}
+
+function move(i){
+    if(board[i] || winner()) return; 
+
+    board[i] = turn;
+    draw(); 
+
+    const currentWinner = winner();
+    
+    if (currentWinner) {
+        scores[currentWinner]++;
+        turnEl.textContent = "🏆 Kazanan: " + currentWinner + "!";
+        updateScoreboard();
+    } else if (board.every(cell => cell !== "")) {
+        scores.draw++;
+        turnEl.textContent = "🤝 Oyun Berabere!";
+        updateScoreboard();
+    } else {
+        turn = turn === "X" ? "O" : "X";
+        turnEl.textContent = "Sıra: " + turn;
+    }
+}
+
+function winner(){
+    const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    for(let [a,b,c] of wins)
+        if(board[a] && board[a] == board[b] && board[b] == board[c]) return board[a];
+    return null;
+}
+
+function reset(){ 
+    board = Array(9).fill(""); 
+    turn = "X"; 
+    turnEl.textContent = "Sıra: " + turn; 
+    draw(); 
+}
+
+draw();
+updateScoreboard();
+//------------TEMA----------//
+function setTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("theme", theme);
+
+  if (theme === "light") {
+    const savedBg = localStorage.getItem("lightBg");
+    if (savedBg) {
+      document.documentElement.style.setProperty("--bg", savedBg);
+    }
+  } else {
+    document.documentElement.style.removeProperty("--bg");
+  }
+}
+
+// sayfa açılınca
+window.addEventListener("DOMContentLoaded", () => {
+  const theme = localStorage.getItem("theme") || "dark";
+  document.documentElement.setAttribute("data-theme", theme);
+
+  if (theme === "light") {
+    const savedBg = localStorage.getItem("lightBg");
+    if (savedBg) {
+      document.documentElement.style.setProperty("--bg", savedBg);
+    }
+  }
+});
+
+// light tema arka planı
+function setLightBg(color) {
+  document.documentElement.style.setProperty("--bg", color);
+  localStorage.setItem("lightBg", color);
+}
+window.addEventListener("DOMContentLoaded", () => {
+  const theme = localStorage.getItem("theme") || "dark";
+  document.documentElement.setAttribute("data-theme", theme);
+
+  if (theme === "dark") {
+    // DARK ise XOX arka planı sabitle
+    document.documentElement.style.setProperty("--bg", "#0f1724");
+  } else {
+    // LIGHT ise seçilen light rengini kullan
+    const savedBg = localStorage.getItem("lightBg");
+    if (savedBg) {
+      document.documentElement.style.setProperty("--bg", savedBg);
+    }
+  }
+});
+
+function goMenu() {
+    window.location.href = "../../index.html"; 
+}
+</script>
+
+</body>
+</html>

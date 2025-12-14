@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Adam Asmaca - Tek Kişilik</title>
+<style>
+  :root{
+    --bg:#0f1724; --card:#0b1220; --accent:#06b6d4; --muted:#9ca3af;
+    --win:#10b981; --lose:#ef4444;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    font-family:Inter, system-ui, Arial; background:linear-gradient(180deg,#031028 0%,#071427 100%);
+    color:#e6eef6; padding:24px;
+  }
+  .wrap{
+    width:100%; max-width:980px; background:rgba(255,255,255,0.02);
+    border-radius:12px; padding:20px; box-shadow:0 8px 30px rgba(2,6,23,0.6);
+    display:grid; grid-template-columns: 1fr 300px; gap:18px;
+  }
+  header{grid-column:1 / -1; display:flex; align-items:center; justify-content:space-between;}
+  h1{margin:0; font-size:20px;}
+  .controls{display:flex; gap:8px; align-items:center;}
+  button {background:var(--accent); border:none; padding:8px 12px; border-radius:8px; color:#042027; font-weight:700; cursor:pointer;}
+  button.ghost{background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--muted);}
+  .left{padding:12px;}
+  .canvas-wrap{background:rgba(0,0,0,0.25); border-radius:10px; padding:12px; display:flex; align-items:center; justify-content:center;}
+  canvas{background:transparent; width:100%; height:300px;}
+  .word{display:flex; gap:10px; margin:18px 0; flex-wrap:wrap;}
+  .letter{min-width:34px; height:44px; border-bottom:3px solid rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:700;}
+  .info{display:flex; gap:10px; align-items:center; color:var(--muted); font-size:14px;}
+  .keyboard{display:grid; grid-template-columns:repeat(10,1fr); gap:8px; margin-top:12px;}
+  .key{padding:10px 8px; background:rgba(255,255,255,0.05); border-radius:8px; text-align:center; cursor:pointer; user-select:none;}
+  .key.disabled{opacity:0.3; pointer-events:none;}
+  .sidebar{padding:12px; background:rgba(255,255,255,0.02); border-radius:10px;}
+  .stats{margin-bottom:20px;}
+  .stat{display:flex; justify-content:space-between; color:var(--muted); padding:6px 0;}
+  
+  /* POPUP */
+  .popup-bg{
+    position:fixed; inset:0; background:rgba(0,0,0,0.6);
+    display:none; align-items:center; justify-content:center;
+  }
+  .popup{
+    background:#111827; padding:24px; border-radius:12px;
+    width:320px; text-align:center; box-shadow:0 0 20px rgba(0,0,0,0.4);
+  }
+  .popup h2{margin:0 0 8px;}
+  .popup button{margin-top:14px; width:100%;}
+</style>
+</head>
+<body>
+
+<!-- POPUP -->
+<div class="popup-bg" id="popupBg">
+  <div class="popup" id="popupBox">
+    <h2 id="popupTitle">Sonuç</h2>
+    <p id="popupWord"></p>
+    <p id="popupStats"></p>
+    <button id="popupBtn">Yeni Oyun</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <header>
+    <h1>Adam Asmaca - Tek Kişilik</h1>
+    <div class="controls">
+      <select id="difficulty">
+        <option value="easy">Kolay</option>
+        <option value="normal" selected>Normal</option>
+        <option value="hard">Zor</option>
+      </select>
+      <button id="newGameBtn">Yeni Oyun</button>
+      <button id="hintBtn" class="ghost">İpucu</button>
+      <button onclick="goMenu()" class="buton C">Ana Menü</button>
+    </div>
+  </header>
+
+  <section class="left">
+    <div class="canvas-wrap">
+      <canvas id="hangCanvas" width="480" height="320"></canvas>
+    </div>
+
+    <div class="info">
+      <div>Kalan hak: <strong id="lives">6</strong></div>
+      <div>Kelime uzunluğu: <strong id="len">—</strong></div>
+    </div>
+
+    <div class="word" id="wordContainer"></div>
+    <div class="keyboard" id="keyboard"></div>
+  </section>
+
+  <aside class="sidebar">
+    <h3>Kazanma / Kaybetme</h3>
+    <div class="stats">
+      <div class="stat"><span>Kazan</span><span id="wins">0</span></div>
+      <div class="stat"><span>Kaybet</span><span id="losses">0</span></div>
+  </aside>
+</div>
+<script>
+/* ------------------ Durum ------------------ */
+const baseWords = {
+  easy: ["elma","araba","köpek","masa","su","kalem"],
+  normal: ["telefon","orman","bilet","yıldız","bahçe"],
+  hard: ["programlama","özgürlük","istisna","senkronizasyon"]
+};
+
+let state = {
+  word: "",
+  revealed: [],
+  lives: 7,
+  guesses: new Set(),
+  wins1: 0,
+  losses1: 0
+};
+
+let drawStep = 0;
+
+/* ------------------ DOM ------------------ */
+const canvas = document.getElementById("hangCanvas");
+const ctx = canvas.getContext("2d");
+const popupBg = document.getElementById("popupBg");
+const popupTitle = document.getElementById("popupTitle");
+const popupWord = document.getElementById("popupWord");
+const popupStats = document.getElementById("popupStats");
+const popupBtn = document.getElementById("popupBtn");
+const winsEl = document.getElementById("wins");
+const lossesEl = document.getElementById("losses");
+const hintBtnEl = document.getElementById("hintBtn");
+
+/* ------------------ Oyun Başlat ------------------ */
+function startGame(){
+  state.word = pickWord();
+  state.revealed = Array.from(state.word).map(_ => "_");
+  state.lives = 7;
+  state.guesses = new Set();
+  drawStep = 0;
+  clearCanvas();
+  drawGallow();
+  updateUI();
+  closePopup();
+}
+
+/* ------------------ İpucu ------------------ */
+function giveHint(){
+  let hiddenIndexes = [];
+  for(let i=0;i<state.word.length;i++){
+    if(state.revealed[i] === "_") hiddenIndexes.push(i);
+  }
+  if(hiddenIndexes.length === 0) return;
+
+  let randomIndex = hiddenIndexes[Math.floor(Math.random()*hiddenIndexes.length)];
+  state.revealed[randomIndex] = state.word[randomIndex];
+
+  state.lives--;
+  drawNextPart();
+  updateUI();
+
+  if(state.revealed.join("") === state.word){
+    state.wins1++;
+    openPopup("win");
+  }
+}
+hintBtnEl.addEventListener("click", giveHint);
+
+/* ------------------ Klavye ------------------ */
+const letters = "ABCÇDEFGĞHIJKLMNOÖPRSŞTUÜVYZ".split("");
+function renderKeyboard(){
+  const k = document.getElementById("keyboard");
+  k.innerHTML = "";
+  letters.forEach(l=>{
+    const d = document.createElement("div");
+    d.className="key";
+    if(state.guesses.has(l.toLowerCase())) d.classList.add("disabled");
+    d.textContent = l;
+    d.onclick = () => handleGuess(l.toLowerCase());
+    k.appendChild(d);
+  });
+}
+
+/* ------------------ Tahmin ------------------ */
+function handleGuess(letter){
+  if(state.guesses.has(letter) || isFinished()) return;
+  state.guesses.add(letter);
+
+  if(state.word.includes(letter)){
+    for(let i=0;i<state.word.length;i++)
+      if(state.word[i] === letter) state.revealed[i] = letter;
+    if(state.revealed.join("") === state.word){
+      state.wins1++;
+      updateUI();
+      openPopup("win");
+      return;
+    }
+  } else {
+    state.lives--;
+    drawNextPart();
+    if(state.lives <= 0){
+      for(let i=0;i<state.word.length;i++)
+        if(state.revealed[i]==="_") state.revealed[i] = state.word[i];
+      updateUI();
+      openPopup("lose");
+      return;
+    }
+  }
+  updateUI();
+}
+function isFinished(){
+  return state.revealed.join("") === state.word || state.lives <= 0;
+}
+
+/* ------------------ UI ------------------ */
+function updateUI(){
+  document.getElementById("lives").textContent = state.lives;
+  document.getElementById("len").textContent = state.word.length;
+
+  const w = document.getElementById("wordContainer");
+  w.innerHTML = "";
+  state.revealed.forEach(ch=>{
+    const d = document.createElement("div");
+    d.className="letter";
+    d.textContent = ch === "_" ? "" : ch;
+    w.appendChild(d);
+  });
+  renderKeyboard();
+  winsEl.textContent = state.wins1;
+}
+
+/* ------------------ Canvas ------------------ */
+function clearCanvas(){ ctx.clearRect(0,0,480,320); ctx.lineWidth=4; ctx.strokeStyle="#cbd5e1"; }
+function drawLine(a,b,c,d){ ctx.beginPath(); ctx.moveTo(a,b); ctx.lineTo(c,d); ctx.stroke(); }
+function drawCircle(a,b,r){ ctx.beginPath(); ctx.arc(a,b,r,0,Math.PI*2); ctx.stroke(); }
+
+function drawGallow(){
+  drawLine(50,300,200,300);
+  drawLine(100,300,100,50);
+  drawLine(100,50,260,50);
+  drawLine(260,50,260,90);
+}
+
+function drawNextPart(){
+  drawStep++;
+  switch(drawStep){
+    case 1: drawCircle(260,120,30); break;
+    case 2:
+      ctx.beginPath();
+      ctx.fillStyle="#cbd5e1";
+      ctx.arc(250,115,4,0,Math.PI*2); ctx.fill();
+      ctx.arc(270,115,4,0,Math.PI*2); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(250,135); ctx.lineTo(270,135); ctx.stroke();
+      break;
+    case 3: drawLine(260,150,260,220); break;
+    case 4: drawLine(260,160,220,190); break;
+    case 5: drawLine(260,160,300,190); break;
+    case 6: drawLine(260,220,230,270); break;
+    case 7: drawLine(260,220,290,270); break;
+  }
+}
+
+/* ------------------ Popup ------------------ */
+function openPopup(type){
+  popupTitle.textContent = type==="win"?"Tebrikler!":"Kaybettin!";
+  popupWord.textContent = "Kelime: "+state.word;
+  popupStats.textContent = `Kazan: ${state.wins1} `;
+  popupBg.style.display="flex";
+}
+function closePopup(){ popupBg.style.display="none"; }
+
+function pickWord(){
+  let diff = document.getElementById("difficulty").value;
+  return baseWords[diff][Math.floor(Math.random()*baseWords[diff].length)];
+}
+
+/* ------------------ Event Listeners ------------------ */
+document.getElementById("newGameBtn").addEventListener("click", startGame);
+popupBtn.addEventListener("click", startGame);
+
+/* ------------------ Başlangıç ------------------ */
+window.onload = startGame;
+    function goMenu() {
+    window.location.href = "../../index.html"; 
+}
+</script>
