@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CrazyGames</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* Popup Arka Plan */
+    #popupBg {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    /* Popup Kutu */
+  #popupBox {
+  background: var(--card);
+  padding: 25px;
+  width: 280px;
+  border-radius: 12px;
+  text-align: center;
+  color: var(--text);
+  border: 2px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+
+    .popBtn {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border-radius: 10px;
+      border: none;
+      font-weight: 700;
+      background: #06b6d4;
+      color: white;
+      cursor: pointer;
+      transition: .2s;
+    }
+    .popBtn:hover {
+      transform: scale(1.04);
+    }
+  </style>
+<link rel="manifest" href="game/manifest.json">
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js");
+  }
+</script>
+</head>
+<body>
+    <h1 color= var(--text;)>Mini Oyunlar</h1>
+
+    <button class="btn" onclick="openSettings()">⚙️ Ayarlar</button>
+
+    <div class="menu">
+      <button class="btn" onclick="startGame('xox')">XOX</button>
+      <button class="btn" onclick="startGame('zar')">Zar At</button>
+      <button class="btn" onclick="startGame('yaziTura')">Yazı Tura</button>
+      <button class="btn" onclick="startGame('cark')">Çark</button>
+      <button class="btn" onclick="startGame('sayiBilmece')">Sayı Bulma</button>
+      <button class="btn" onclick="startGame('uctas')">Üçtaş</button>
+      <button class="btn" onclick="startGame('kareKapmaca')">Kare Kapmaca</button>
+      <button class="btn" onclick="startGame('lingo')">Lingo</button>
+      <button class="btn" onclick="startGame('xoxUltra')">xox Ultra</button>
+      <button class="btn" onclick="startGame('harita')">Şehir Bulmaca</button>
+      <button class="btn" onclick="startGame('dinazor')">Dino Game</button>
+      <button class="btn" onclick="startGame('hafizaKart')">Hafıza Kartları</button>
+      <button class="btn" onclick="startGame('sekenTop')">Blok ve top</button>
+      <button class="btn" onclick="startGame('dinazor')">Dino Game</button>
+
+      <!-- Adam Asmaca popup açacak -->
+      <button class="btn" onclick="openAsmacaPopup()">Adam Asmaca</button>
+    </div>
+
+    <!-- Popup -->
+    <div id="popupBg">
+      <div id="popupBox">
+        <h3>Adam Asmaca Modu Seç</h3>
+
+        <button class="popBtn" style="background:#0084c2;" onclick="goAsmaca('tek')">Tek Kişilik</button>
+        <button class="popBtn" style="background:#009e69;" onclick="goAsmaca('cift')">Çift Kişilik</button>
+        <button class="popBtn" style="background:#ef4444;" onclick="closeAsmacaPopup()">Kapat</button>
+      </div>
+    </div>
+    <!--TEMA -->
+<div id="settingsBg">
+  <div id="popupBox">
+    <h3>Tema Seç</h3>
+
+    <button class="popBtn" onclick="setTheme('dark')">🌙 Dark Tema</button>
+    <button class="popBtn" onclick="setTheme('light')">☀️ White Tema</button>
+
+    <div class="color-picker">
+      <div class="color-circle" style="background:#8f95a1" onclick="setLightBg('#f5f7fb')"></div>
+      <div class="color-circle" style="background:#e0f2fe" onclick="setLightBg('#e0f2fe')"></div>
+      <div class="color-circle" style="background:#fef3c7" onclick="setLightBg('#fef3c7')"></div>
+      <div class="color-circle" style="background:#ecfeff" onclick="setLightBg('#ecfeff')"></div>
+      <div class="color-circle" style="background:#1dffa8" onclick="setLightBg('#1dffa8')"></div>
+    </div>
+    <div class="color-picker">
+      <div class="color-circle" style="background:#96ffb9" onclick="setLightBg('#96ffb9')"></div>
+      <div class="color-circle" style="background:#ff7979" onclick="setLightBg('#ff7979')"></div>
+      <div class="color-circle" style="background:#190420" onclick="setLightBg('#190420')"></div>
+      <div class="color-circle" style="background:#e5ff70" onclick="setLightBg('#e5ff70')"></div>
+      <div class="color-circle" style="background:#003833" onclick="setLightBg('#003833')"></div>
+    </div>
+
+    <button class="popBtn" style="background:#ef4444;" onclick="closeSettings()">Kapat</button>
+  </div>
+</div>
+
+  <script>
+
+    function startGame(mode) {
+      window.location.href = "miniOyunlar/" + mode + ".html";
+    }
+
+    function openAsmacaPopup() {
+      document.getElementById("popupBg").style.display = "flex";
+    }
+
+    function closeAsmacaPopup() {
+      document.getElementById("popupBg").style.display = "none";
+    }
+
+    function goAsmaca(mod) {
+      if (mod === "tek") {
+        window.location.href = "game/miniOyunlar/adamAsmacaTekK.html";
+      } else {
+        window.location.href = "game/miniOyunlar/adamAsmaca.html";
+      }
+    }
+
+  </script>
+<script>
+  function openSettings() {
+    document.getElementById("settingsBg").style.display = "flex";
+  }
+
+  function closeSettings() {
+    document.getElementById("settingsBg").style.display = "none";
+  }
+
+ function setTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("theme", theme);
+
+  if (theme === "light") {
+    const bg = localStorage.getItem("lightBg");
+    if (bg) {
+      document.documentElement.style.setProperty("--bg", bg);
+    }
+  } else {
+    // DARK'a geçince inline bg'yi temizle
+    document.documentElement.style.removeProperty("--bg");
+  }
+}
+
+function setLightBg(color) {
+  document.documentElement.style.setProperty("--bg", color);
+  localStorage.setItem("lightBg", color);
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  const theme = localStorage.getItem("theme") || "dark";
+  document.documentElement.setAttribute("data-theme", theme);
+
+  if (theme === "light") {
+    const bg = localStorage.getItem("lightBg");
+    if (bg) {
+      document.documentElement.style.setProperty("--bg", bg);
+    }
+  }
+});
+</script>
+
+</body>
+</html>
