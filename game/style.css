@@ -7,6 +7,9 @@
   background: var(--bggenel); /* Temaya duyarlı arka plan değişkenini kullanır */
   border-radius: 18px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
 }
 #settingsBg {
   position: fixed;
