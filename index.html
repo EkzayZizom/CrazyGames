@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CrazyGames</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="game/style.css">
 
   <style>
     /* Popup Arka Plan */
@@ -20,13 +20,13 @@
 
     /* Popup Kutu */
   #popupBox {
-  background: var(--card);
+  background: var(--cardgenel);
   padding: 25px;
   width: 280px;
   border-radius: 12px;
   text-align: center;
-  color: var(--text);
-  border: 2px solid var(--border);
+  color: var(--textgenel);
+  border: 2px solid var(--bordergenel);
   display: flex;
   flex-direction: column;
 }
@@ -47,6 +47,9 @@
     .popBtn:hover {
       transform: scale(1.04);
     }
+    .baslikcolor{
+      color: red;
+    }
   </style>
 <link rel="manifest" href="game/manifest.json">
 <script>
@@ -56,12 +59,12 @@
 </script>
 </head>
 <body>
-    <h1 color= var(--text;)>Mini Oyunlar</h1>
+    <h1 class="baslikcolor">Mini Oyunlar</h1>
 
     <button class="btn" onclick="openSettings()">⚙️ Ayarlar</button>
 
     <div class="menu">
-      <button class="btn" onclick="startGame('xox')">XOX</button>
+      <button class="btn" onclick="startGame('xox')">XoX</button>
       <button class="btn" onclick="startGame('zar')">Zar At</button>
       <button class="btn" onclick="startGame('yaziTura')">Yazı Tura</button>
       <button class="btn" onclick="startGame('cark')">Çark</button>
@@ -156,16 +159,16 @@
   if (theme === "light") {
     const bg = localStorage.getItem("lightBg");
     if (bg) {
-      document.documentElement.style.setProperty("--bg", bg);
+      document.documentElement.style.setProperty("--bggenel", bg);
     }
   } else {
     // DARK'a geçince inline bg'yi temizle
-    document.documentElement.style.removeProperty("--bg");
+    document.documentElement.style.removeProperty("--bggenel");
   }
 }
 
 function setLightBg(color) {
-  document.documentElement.style.setProperty("--bg", color);
+  document.documentElement.style.setProperty("--bggenel", color);
   localStorage.setItem("lightBg", color);
 }
 
@@ -176,7 +179,7 @@ window.addEventListener("DOMContentLoaded", () => {
   if (theme === "light") {
     const bg = localStorage.getItem("lightBg");
     if (bg) {
-      document.documentElement.style.setProperty("--bg", bg);
+      document.documentElement.style.setProperty("--bggenel", bg);
     }
   }
 });

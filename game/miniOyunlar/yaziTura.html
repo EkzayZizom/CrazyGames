@@ -11,7 +11,7 @@
       --bg: linear-gradient(120deg,#0f172a,#001219);
     }
     *{box-sizing:border-box}
-    body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);font-family:Inter,system-ui,Segoe UI,Arial;margin:0;padding:24px}
+    body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bggenel);font-family:Inter,system-ui,Segoe UI,Arial;margin:0;padding:24px}
     .card{width:100%;max-width:680px;background:rgba(255,255,255,0.03);padding:28px;border-radius:16px;box-shadow:0 6px 24px rgba(2,6,23,0.6);text-align:center}
     h1{margin:0 0 8px;font-weight:600}
 
@@ -43,9 +43,9 @@
     .result.yazi { background: linear-gradient(90deg, #520081, #009edd); }
     .result.tura { background: linear-gradient(90deg, #fb7185, #fb854a); }
 
-    .small{font-size:13px;color:var(--text);}
+    .small{font-size:13px;color:var(--textgenel);}
     .text{
-      color:var(--text);
+      color:var(--textgenel);
     }
 
     @keyframes coinFlip {
@@ -137,10 +137,10 @@ function setTheme(theme) {
   if (theme === "light") {
     const savedBg = localStorage.getItem("lightBg");
     if (savedBg) {
-      document.documentElement.style.setProperty("--bg", savedBg);
+      document.documentElement.style.setProperty("--bggenel", savedBg);
     }
   } else {
-    document.documentElement.style.removeProperty("--bg");
+    document.documentElement.style.removeProperty("--bggenel");
   }
 }
 
@@ -152,14 +152,14 @@ window.addEventListener("DOMContentLoaded", () => {
   if (theme === "light") {
     const savedBg = localStorage.getItem("lightBg");
     if (savedBg) {
-      document.documentElement.style.setProperty("--bg", savedBg);
+      document.documentElement.style.setProperty("--bggenel", savedBg);
     }
   }
 });
 
 // light tema arka planı
 function setLightBg(color) {
-  document.documentElement.style.setProperty("--bg", color);
+  document.documentElement.style.setProperty("--bggenel", color);
   localStorage.setItem("lightBg", color);
 }
 window.addEventListener("DOMContentLoaded", () => {
@@ -168,12 +168,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
   if (theme === "dark") {
     // DARK ise XOX arka planı sabitle
-    document.documentElement.style.setProperty("--bg", "#0f1724");
+    document.documentElement.style.setProperty("--bggenel", "#0f1724");
   } else {
     // LIGHT ise seçilen light rengini kullan
     const savedBg = localStorage.getItem("lightBg");
     if (savedBg) {
-      document.documentElement.style.setProperty("--bg", savedBg);
+      document.documentElement.style.setProperty("--bggenel", savedBg);
     }
   }
 });

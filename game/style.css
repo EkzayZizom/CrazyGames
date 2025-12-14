@@ -4,7 +4,7 @@
   max-width: 420px;
   margin: 20px auto;
   padding: 25px;
-  background: var(--bg); /* Temaya duyarlı arka plan değişkenini kullanır */
+  background: var(--bggenel); /* Temaya duyarlı arka plan değişkenini kullanır */
   border-radius: 18px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
 }
@@ -19,28 +19,28 @@
 }
 
 :root {
-  --bg: #0f1724;
-  --card: #0b1220;
-  --text: #ffffff;
-  --btn: #06b6d4;
-  --border: #06b6d4;
+  --bggenel: #0f1724;
+  --cardgenel: #0b1220;
+  --textgenel: #ffffff;
+  --btngenel: #06b6d4;
+  --bordergenel: #06b6d4;
 }
 
 /* White Tema */
 [data-theme="light"] {
-  --bg: #f5f7fb;
-  --card: #ffffff;
-  --text: #111827;
-  --btn: #2563eb;
-  --border: #2563eb;
+  --bggenel: #f5f7fb;
+  --cardgenel: #ffffff;
+  --textgenel: #111827;
+  --btngenel: #2563eb;
+  --bordergenel: #2563eb;
 }
 /*DARK TEMA*/
 [data-theme="dark"] {
-  --bg: #0f1724;
-  --card: #0b1220;
-  --text: #ffffff;
-  --btn: #06b6d4;
-  --border: #06b6d4;
+  --bggenel: #0f1724;
+  --cardgenel: #0b1220;
+  --textgenel: #ffffff;
+  --btngenel: #06b6d4;
+  --bordergenel: #06b6d4;
 }
   /* White tema renk seçenekleri */
   .color-picker {
@@ -75,8 +75,8 @@ header, #turn {
 body {
   margin: 0;
   font-family: "Poppins", sans-serif;
-  background: var(--bg);
-  color: var(--text);
+  background: var(--bggenel);
+  color: var(--textgenel);
   min-height: 100vh;
   display: flex;
   flex-direction: column;

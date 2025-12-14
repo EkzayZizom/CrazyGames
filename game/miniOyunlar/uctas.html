@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="../style.css">
 <style>
   :root{ --size: 360px; }
-  body{ font-family: Arial, Helvetica, sans-serif; display:flex; gap:24px; padding:24px; background:var(--bg); color:var(--text); position:relative; }
+  body{ font-family: Arial, Helvetica, sans-serif; display:flex; gap:24px; padding:24px; background:var(--bggenel); color:var(--textgenel); position:relative; }
   .wrap{ display:flex; gap:24px; }
   .board{ width:var(--size); height:var(--size); display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr); gap:6px; background:#17233b; padding:6px; border-radius:12px; box-shadow:0 6px 30px rgba(2,6,23,0.7); position:relative; }
   .cell{ background:linear-gradient(180deg,#0c1727,#08121b); border-radius:8px; display:flex; align-items:center; justify-content:center; position:relative; cursor:pointer; user-select:none; font-weight:700; font-size:20px; color:#8aa4c7; }
@@ -392,10 +392,10 @@ function setTheme(theme) {
   if (theme === "light") {
     const savedBg = localStorage.getItem("lightBg");
     if (savedBg) {
-      document.documentElement.style.setProperty("--bg", savedBg);
+      document.documentElement.style.setProperty("--bggenel", savedBg);
     }
   } else {
-    document.documentElement.style.removeProperty("--bg");
+    document.documentElement.style.removeProperty("--bggenel");
   }
 }
 
@@ -407,14 +407,14 @@ window.addEventListener("DOMContentLoaded", () => {
   if (theme === "light") {
     const savedBg = localStorage.getItem("lightBg");
     if (savedBg) {
-      document.documentElement.style.setProperty("--bg", savedBg);
+      document.documentElement.style.setProperty("--bggenel", savedBg);
     }
   }
 });
 
 // light tema arka planı
 function setLightBg(color) {
-  document.documentElement.style.setProperty("--bg", color);
+  document.documentElement.style.setProperty("--bggenel", color);
   localStorage.setItem("lightBg", color);
 }
 window.addEventListener("DOMContentLoaded", () => {
@@ -423,12 +423,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
   if (theme === "dark") {
     // DARK ise XOX arka planı sabitle
-    document.documentElement.style.setProperty("--bg", "#0f1724");
+    document.documentElement.style.setProperty("--bggenel", "#0f1724");
   } else {
     // LIGHT ise seçilen light rengini kullan
     const savedBg = localStorage.getItem("lightBg");
     if (savedBg) {
-      document.documentElement.style.setProperty("--bg", savedBg);
+      document.documentElement.style.setProperty("--bggenel", savedBg);
     }
   }
 });
