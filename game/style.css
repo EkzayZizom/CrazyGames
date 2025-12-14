@@ -217,7 +217,7 @@ h1, h2 {
 
 }
 /* Ana Menü Grid 3x layout */
-.menu{
+.menuuctas{
   display: grid;
   grid-template-columns: repeat(3, 1fr); /* yatayda 3 kutu */
   gap: 15px;
