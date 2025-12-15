@@ -1,65 +1,252 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>Memory Game</title>
-  <link rel="stylesheet" href="../style.css">
-  <style>
-    body { font-family: sans-serif; display: flex; justify-content: center; }
-    .grid { display: grid; grid-template-columns: repeat(4, 100px); gap: 10px; }
-    .card {
-      width: 100px; height: 100px;
-      background: #444; color: transparent;
-      display: flex; justify-content: center; align-items: center;
-      font-size: 2em; cursor: pointer;
-      border-radius: 8px;
-      transition: background 0.3s, color 0.3s;
-    }
-    .card.show { background: #fff; color: #000; }
-    .card.matched { background: #4caf50; color: #fff; cursor: default; }
-  </style>
+<meta charset="UTF-8">
+<title>Memory Game</title>
+<link rel="stylesheet" href="../style.css">
+
+<style>
+  body{
+    margin:0;
+    min-height:100vh;
+    background: var(--bggenel);
+    color:var(--bggenel);
+    font-family:sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+
+  .game{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:16px;
+  }
+
+  /* MOD SEÇİM */
+  .modes{
+    display:flex;
+    gap:12px;
+  }
+
+  .mode-btn{
+    padding:10px 16px;
+    border-radius:10px;
+    border:none;
+    cursor:pointer;
+    font-weight:bold;
+    background:#06b6d4;
+    color:#000;
+  }
+
+  /* ÜST PANEL */
+  .info{
+    display:flex;
+    gap:20px;
+    font-size:16px;
+    font-weight:bold;
+  }
+
+  .turn{
+    color:#38bdf8;
+  }
+
+  /* OYUN ALANI */
+  .grid{
+    display:grid;
+    gap:12px;
+  }
+
+  .card{
+    background:#1e293b;
+    color:transparent;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    border-radius:12px;
+    cursor:pointer;
+    user-select:none;
+    transition:.3s;
+  }
+
+  .card.show{
+    background:#fff;
+    color:#000;
+  }
+
+  .card.matched{
+    background:#22c55e;
+    color:#fff;
+    cursor:default;
+  }
+</style>
 </head>
 <body>
+
+<div class="game">
+
+  <!-- MOD SEÇİM -->
+  <div class="modes" id="modeSelect">
+    <button class="mode-btn" onclick="startGame(6,4)">6×4</button>
+    <button class="mode-btn" onclick="startGame(6,6)">6×6</button>
+    <button class="mode-btn" onclick="startGame(8,8)">8×8</button>
+  </div>
+
+  <!-- BİLGİ -->
+  <div class="info" style="display:none" id="infoPanel">
+    <div class="turn">Sıra: <span id="turnText">Oyuncu 1</span></div>
+    <div class="turn">O1: <span id="score1">0</span></div>
+    <div class="turn">O2: <span id="score2">0</span></div>
+    <button onclick="goMenu()">Ana Menü</button>
+  </div>
+
+  <!-- OYUN -->
   <div class="grid" id="grid"></div>
-  <script>
-    const symbols = ['🍎','🍌','🍇','🍓','🍒','🍍','🥝','🍑'];
-    let cards = [...symbols, ...symbols].sort(() => Math.random() - 0.5);
-    const grid = document.getElementById('grid');
-    let firstCard = null;
-    let lockBoard = false; // yanlış eşleşmede bekleme için
 
-    cards.forEach(sym => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.textContent = sym;
+</div>
 
-      card.addEventListener('click', () => {
-        if (lockBoard || card.classList.contains('show') || card.classList.contains('matched')) return;
+<script>
+const allSymbols = [
+  '🍎','🍌','🍇','🍓','🍒','🍍','🥝','🍑',
+  '🍉','🍋','🥭','🍐','🍊','🥥','🍏','🍈',
+  '🍅','🍆','🥕','🌽','🥔','🧄','🧅','🥦',
+  '🥬','🌶️','🍪','🥒','🍄','🥜','🌰','🍞'
+];
 
-        card.classList.add('show');
+let firstCard = null;
+let lockBoard = false;
+let currentPlayer = 1;
+let score1 = 0;
+let score2 = 0;
 
-        if (!firstCard) {
-          firstCard = card;
-        } else {
-          // eşleşme kontrolü
-          if (firstCard.textContent === card.textContent) {
-            firstCard.classList.add('matched');
-            card.classList.add('matched');
-            firstCard = null;
+const grid = document.getElementById("grid");
+const turnText = document.getElementById("turnText");
+const score1El = document.getElementById("score1");
+const score2El = document.getElementById("score2");
+const infoPanel = document.getElementById("infoPanel");
+const modeSelect = document.getElementById("modeSelect");
+
+function startGame(cols, rows){
+  // reset
+  grid.innerHTML = "";
+  firstCard = null;
+  lockBoard = false;
+  currentPlayer = 1;
+  score1 = score2 = 0;
+  score1El.textContent = score2El.textContent = 0;
+  turnText.textContent = "Oyuncu 1";
+
+  modeSelect.style.display = "none";
+  infoPanel.style.display = "flex";
+
+  const totalCards = cols * rows;
+  const neededPairs = totalCards / 2;
+
+  let symbols = allSymbols.slice(0, neededPairs);
+  let cards = [...symbols, ...symbols].sort(() => Math.random() - 0.5);
+
+  /* GRID & KART BOYUTU */
+  let size = cols >= 8 ? 55 : cols >= 6 ? 75 : 90;
+
+  grid.style.gridTemplateColumns = `repeat(${cols}, ${size}px)`;
+
+  cards.forEach(sym=>{
+    const card = document.createElement("div");
+    card.className = "card";
+    card.textContent = sym;
+    card.style.width = size + "px";
+    card.style.height = size + "px";
+    card.style.fontSize = Math.floor(size * 0.5) + "px";
+
+    card.onclick = ()=>{
+      if(lockBoard || card.classList.contains("show") || card.classList.contains("matched")) return;
+
+      card.classList.add("show");
+
+      if(!firstCard){
+        firstCard = card;
+      } else {
+        if(firstCard.textContent === card.textContent){
+          firstCard.classList.add("matched");
+          card.classList.add("matched");
+
+          if(currentPlayer === 1){
+            score1++; score1El.textContent = score1;
           } else {
-            lockBoard = true;
-            setTimeout(() => {
-              firstCard.classList.remove('show');
-              card.classList.remove('show');
-              firstCard = null;
-              lockBoard = false;
-            }, 1000); // 1 saniye sonra kapanır
+            score2++; score2El.textContent = score2;
           }
+          firstCard = null;
+        } else {
+          lockBoard = true;
+          setTimeout(()=>{
+            firstCard.classList.remove("show");
+            card.classList.remove("show");
+            firstCard = null;
+            lockBoard = false;
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            turnText.textContent = currentPlayer === 1 ? "Oyuncu 1" : "Oyuncu 2";
+          }, 800);
         }
-      });
+      }
+    };
 
-      grid.appendChild(card);
-    });
-  </script>
+    grid.appendChild(card);
+  });
+}
+//------------TEMA----------//
+function setTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("theme", theme);
+
+  if (theme === "light") {
+    const savedBg = localStorage.getItem("lightBg");
+    if (savedBg) {
+      document.documentElement.style.setProperty("--bg", savedBg);
+    }
+  } else {
+    document.documentElement.style.removeProperty("--bg");
+  }
+}
+
+// sayfa açılınca
+window.addEventListener("DOMContentLoaded", () => {
+  const theme = localStorage.getItem("theme") || "dark";
+  document.documentElement.setAttribute("data-theme", theme);
+
+  if (theme === "light") {
+    const savedBg = localStorage.getItem("lightBg");
+    if (savedBg) {
+      document.documentElement.style.setProperty("--bg", savedBg);
+    }
+  }
+});
+
+// light tema arka planı
+function setLightBg(color) {
+  document.documentElement.style.setProperty("--bg", color);
+  localStorage.setItem("lightBg", color);
+}
+window.addEventListener("DOMContentLoaded", () => {
+  const theme = localStorage.getItem("theme") || "dark";
+  document.documentElement.setAttribute("data-theme", theme);
+
+  if (theme === "dark") {
+    // DARK ise XOX arka planı sabitle
+    document.documentElement.style.setProperty("--bg", "#0f1724");
+  } else {
+    // LIGHT ise seçilen light rengini kullan
+    const savedBg = localStorage.getItem("lightBg");
+    if (savedBg) {
+      document.documentElement.style.setProperty("--bg", savedBg);
+    }
+  }
+});
+
+function goMenu() {
+    window.location.href = "../../index.html"; 
+}
+</script>
+
 </body>
 </html>
