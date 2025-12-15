@@ -7,7 +7,7 @@
   background: var(--bggenel); /* Temaya duyarlı arka plan değişkenini kullanır */
   border-radius: 18px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-  display: flex;
+  display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 15px;
   justify-content: center;
@@ -271,6 +271,5 @@ h1, h2 {
 
 /* Hover efekti */
 .game-card:hover {
-  background: rgba(255, 255, 255, 0.22);
   transform: scale(1.05);
 }
