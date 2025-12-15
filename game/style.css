@@ -102,11 +102,9 @@ body {
   color: var(--textgenel);
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 12px;
   width: 100%;
-  max-width: 360px;
 }
 
 /* Menü ve Oyun Kutuları */
