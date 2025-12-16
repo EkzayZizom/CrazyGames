@@ -1,25 +1,29 @@
-const cacheName = "mini-oyunlar-v1";
-const filesToCache = [
+const cacheName = "mini-oyunlar";
+const coreFiles = [
   "index.html",
-  "style.css",
-  "adamAsmacaTekK.html",
-  "adamAsmaca.html",
-  "xox.html",
-  "zar.html",
-  "yaziTura.html",
-  "cark.html",
-  "sayiBilmece.html",
-  "uctas.html"
+  "style.css"
 ];
 
-self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(cacheName).then(cache => cache.addAll(filesToCache))
+// install
+self.addEventListener("install", e => {
+  e.waitUntil(
+    caches.open(cacheName).then(c => c.addAll(coreFiles))
   );
 });
 
-self.addEventListener("fetch", event => {
-  event.respondWith(
-    caches.match(event.request).then(resp => resp || fetch(event.request))
+// fetch
+self.addEventListener("fetch", e => {
+  e.respondWith(
+    caches.match(e.request).then(res => {
+      return (
+        res ||
+        fetch(e.request).then(fetchRes => {
+          return caches.open(cacheName).then(cache => {
+            cache.put(e.request, fetchRes.clone());
+            return fetchRes;
+          });
+        })
+      );
+    })
   );
 });
