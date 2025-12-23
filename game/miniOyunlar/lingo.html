@@ -108,10 +108,10 @@
       "BİTE","BİZE","BÖCE","ÇAĞI","ÇALI","ÇATI","ÇEŞİ","DAHA","DAĞI","DAVA",
       "OYUN","DELİ","ADAM","DERİ","DOST","DUYU","DÜZE","ELDE","ELEK","ELMA",
       "EVET","FARK","FİŞE","GELİ","GECE","GÜNE","GÜÇL","","","HALK",
-      "HANG","HARE","HAYV","HECE","HİLE","İFAZ","İKİŞ","İLKE","İMAJ","İZİN",
+      "BATI","HARE","HAYV","HECE","HİLE","İFAZ","İKİŞ","İLKE","İMAJ","İZİN",
       "KABA","KASA","KATI","KAŞI","KAZI","K","KISA","KİLO","KOLA","KONU",
       "KOPY","KULA","KUTU","LAMA","LİRA","MAYA","MESE","MİSA","NAKİ","NERE",
-      "NİÇE","NOKA","OMUZ","ONUR","ORAN","PASA","PATI","PEKİ","RAKİ","SABA",
+      "DOĞU","NOKA","OMUZ","ONUR","ORAN","PASA","PATI","PEKİ","RAKİ","SABA",
       "SAAT","SALI","MAVİ","SARI","SIRA","SKOR","SORU","SUCU","","TAKI",
       "MASA","TARA","TAVA","TEPE","TEMA","TENE","TURA","SAYI","UYAN","UYAR",
       "UZAĞ","UZUN","VAKİ","VANA","BACA","YALI","YAMA","YANI","YARA","YASA",
@@ -136,7 +136,7 @@
       "ARMUTÇU","BAĞIMS","BAKIMLI","BALMUMU","BANKA","BARDAK","BALKON","BAŞARI",
       "BİLGİLİ","BİRLİK","ÇALIŞI","ÇEKİCİ","ÇİFTLİ","DEĞERLİ","DERİNCE","DİNLENİ",
       "DOSTLUK","DUYARLI","DÜŞÜNCE","EDEBİLİ","EĞLENCE","EKONOMİ","ELEMANI","EMANETİ",
-      "ENGELS","ESKİDEN","ETKİLİL","FABRİKA","FARKLI","FOTOĞRA","GELİŞME","GEREKLİ",
+      "ENGELS","ESKİDEN","ETKİLİL","FABRİKA","FARKLI","ŞELALE","GELİŞME","GEREKLİ",
       "GÖRÜNME","GÜVENİL","GÜZELLİ","HAREKETİ","HASTALI","HAYATÇA","HİKÂYEL","İFADELİ",
       "İLETİŞİ","İNSANCA","İŞLEMCİ","KADINCA","KALICIL","KARGOLU","KASIMLI","KEDİCİK",
       "KİTAPÇI","KONUŞMA","KORUNMA","KURTULU","LİDERLİ","MAKALEL","MALZEME", "MANEVİ" , "MERAKLI",
@@ -192,7 +192,7 @@
       target = 'TEST'.slice(0,L).padEnd(L, 'X');
     }
     
-    maxAttempts = L + 2; 
+    maxAttempts = 6; 
     grid = Array.from({length:maxAttempts}, ()=>Array.from({length:L}, ()=>({letter:'',state:''})));
     currentRow = 0; currentCol = 0; gameOver = false; 
     Object.keys(keyboardState).forEach(k=>keyboardState[k]='');
