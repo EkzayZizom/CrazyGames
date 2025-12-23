@@ -70,6 +70,14 @@
       margin-bottom: 20px;
       color: darkred;
     }
+    #TopInfo{
+      position: fixed;        /* ekrana sabit */
+      top: 10px;              /* en üstten boşluk */
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 999; 
+    }
     svg path {
       cursor: pointer;
       transition: fill 0.3s;
@@ -80,8 +88,10 @@
   </style>
 </head>
 <body>
-<div id="targetCity"></div>
-<div id="info"></div>
+<div id="TopInfo">
+  <div id="targetCity"></div>
+  <div id="info"></div>
+</div>
 
 <svg id="wrapper" viewBox="0 0 1000 600" preserveAspectRatio="xMinYMin" height="400" width="550" style="background-color: rgba(0, 0, 0, 0);">
     preserveAspectRatio="xMidYMid meet"
