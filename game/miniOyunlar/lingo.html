@@ -12,6 +12,14 @@
     --accent:#06b6d4; --glass: rgba(255,255,255,0.03);
     --gap:8px; --pad:12px;
   }
+  #boardContainer{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.board{
+  margin: 0 auto;
+}
   html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;color:#e6eef8;background:linear-gradient(180deg,#02101a 0%, #081328 100%);}
   .app{max-width:920px;margin:0 auto;padding:16px;box-sizing:border-box;min-height:100vh;display:flex;flex-direction:column}
   header{display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -31,8 +39,13 @@
   .tile.yellow{background:linear-gradient(180deg,var(--yellow),#b66f0a);color:#081018}
   .tile.gray{background:linear-gradient(180deg,var(--gray),#3f3f46);color:white}
 
-  .keyboard{display:grid;gap:8px;justify-items:center;margin-top:8px}
-  .key-row{display:flex;gap:6px}
+  .keyboard{display:grid;gap:8px;justify-items:center;margin-top:8px;widht:100%;max-widht:420px}
+  .key-row{
+  display:flex;
+  gap:6px;
+  justify-content:center;
+  flex-wrap:nowrap;
+}
   .key{padding:12px 10px;border-radius:8px;background:var(--glass);min-width:34px;text-align:center;font-weight:700;cursor:pointer;user-select:none}
   .key.wide{min-width:62px}
 
@@ -402,4 +415,5 @@
 }
 </script>
 </body>
+
 </html>
