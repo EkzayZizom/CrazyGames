@@ -39,12 +39,12 @@
       height:auto;
     }
 
-/* şehirler */
-.city{
-  fill: lightgray;
-  cursor: pointer;
-  transition: fill .2s;
-}
+    /* şehirler */
+    .city{
+      fill: lightgray;
+      cursor: pointer;
+      transition: fill .2s;
+    }
 
     /* sadece aktifken hover olsun */
     .city:not(.disabled):not(.correct):hover{
@@ -89,6 +89,11 @@
     }
     svg path:hover {
       fill: orange;
+    }
+    /* OYUN SAYFASI – SADECE ARKA PLAN */
+    body.game{
+      min-height: 100vh;
+      background: var(--bggenel);
     }
   </style>
 </head>
