@@ -39,24 +39,29 @@
       height:auto;
     }
 
-    /* şehirler */
-    .city{
-      fill:lightgray;
-      cursor:pointer;
-      transition:.2s;
+/* şehirler */
+.city{
+  fill: lightgray;
+  cursor: pointer;
+  transition: fill .2s;
+}
+
+    /* sadece aktifken hover olsun */
+    .city:not(.disabled):not(.correct):hover{
+      fill: orange;
     }
-    .city:hover{
-      fill:orange;
-    }
+
     .city.correct{
-      fill:green;
+      fill: green !important;
     }
+
     .city.wrong{
-      fill:red;
+      fill: red !important;
     }
+
     .city.disabled{
-      fill:gray;
-      pointer-events:none;
+      fill: gray !important;
+      pointer-events: none;
     }
 
     #targetCity {
