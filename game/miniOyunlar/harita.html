@@ -309,6 +309,54 @@ const cities = [
       p.style.pointerEvents = "none";
     });
   }
+//------------TEMA----------//
+function setTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("theme", theme);
+
+  if (theme === "light") {
+    const savedBg = localStorage.getItem("lightBg");
+    if (savedBg) {
+      document.documentElement.style.setProperty("--bggenel", savedBg);
+    }
+  } else {
+    document.documentElement.style.removeProperty("--bggenel");
+  }
+}
+
+// sayfa açılınca
+window.addEventListener("DOMContentLoaded", () => {
+  const theme = localStorage.getItem("theme") || "dark";
+  document.documentElement.setAttribute("data-theme", theme);
+
+  if (theme === "light") {
+    const savedBg = localStorage.getItem("lightBg");
+    if (savedBg) {
+      document.documentElement.style.setProperty("--bggenel", savedBg);
+    }
+  }
+});
+
+// light tema arka planı
+function setLightBg(color) {
+  document.documentElement.style.setProperty("--bggenel", color);
+  localStorage.setItem("lightBg", color);
+}
+window.addEventListener("DOMContentLoaded", () => {
+  const theme = localStorage.getItem("theme") || "dark";
+  document.documentElement.setAttribute("data-theme", theme);
+
+  if (theme === "dark") {
+    // DARK ise XOX arka planı sabitle
+    document.documentElement.style.setProperty("--bggenel", "#0f1724");
+  } else {
+    // LIGHT ise seçilen light rengini kullan
+    const savedBg = localStorage.getItem("lightBg");
+    if (savedBg) {
+      document.documentElement.style.setProperty("--bggenel", savedBg);
+    }
+  }
+});
 
   startGame();
 });
