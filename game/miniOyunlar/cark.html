@@ -36,23 +36,27 @@ button {
 }
 button:hover { background: #3650b3; }
 
-/* CANVAS */
-canvas {
-  display: block;
-  margin: 70px auto 0 auto;
-  border-radius: 50%;
+/* ÇARK ALANI */
+#wheelContainer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;        /* butonların altı */
 }
 
-/* OK (işaretleyici) */
+/* CANVAS */
+canvas {
+  margin: 0;
+  display: block;
+}
+
+/* OK */
 #pointer {
   position: absolute;
-  width: 0;
-  height: 0;
-  border-left: 14px solid transparent;
-  border-right: 14px solid transparent;
-  border-bottom: 28px solid rgb(0, 0, 0);
+  top: -18px;              /* çarkın üstünde */
+  left: 50%;
   transform: translateX(-50%) rotate(180deg);
-  z-index: 10;
 }
 
 /* SONUÇ YAZISI */
@@ -115,9 +119,10 @@ canvas {
   <button onclick="goMenu()">Ana Menü</button>
 </div>
 
-<div id="pointer"></div>
-
-<canvas id="wheel"></canvas>
+<div id="wheelContainer">
+  <div id="pointer"></div>
+  <canvas id="wheel"></canvas>
+</div>
 
 <!-- SONUÇ LABEL -->
 <div id="resultLabel"></div>
