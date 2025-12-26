@@ -159,7 +159,20 @@ h1, h2 {
   background: #ff6b6b;
   transform: scale(1.05);
 }
+@media screen and (orientation: landscape) and (max-width: 1024px) {
 
+  body {
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .menu {
+    max-width: 100%;
+    width: 100%;
+    grid-template-columns: repeat(5, 1fr);
+    padding: 15px;
+  }
+}
 /* Animasyonlar */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
