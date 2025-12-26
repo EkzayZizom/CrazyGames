@@ -144,12 +144,53 @@
   gap: 40px;                  /* aralarına boşluk bırak */
   margin-top: 20px;
 }
+/* 📱 MOBİL YATAY DÜZEN */
+@media screen and (orientation: landscape) and (max-width: 1024px) {
+
+  body {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+  }
+
+  /* SOL: XOX + SIRA */
+  .left-panel {
+    width: 200px;
+    text-align: left;
+    margin-right: 30px;
+  }
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.8em;
+  }
+
+  #turn {
+    font-size: 1.4em;
+  }
+
+  /* ORTA: OYUN TAHTASI */
+  .grid {
+    margin: 0 auto;
+  }
+
+  /* SAĞ: SKOR */
+  #scoreboard {
+    margin-left: 30px;
+  }
+}
+
     </style>
 </head>
 <body>
 
-<h2>XOX</h2>
-<div id="turn">Sıra: X</div>
+<div class="left-panel">
+  <h2>XOX</h2>
+  <div id="turn">Sıra: X</div>
+</div>
 
 <div class="game-area">
     <div class="grid" id="board"></div>
