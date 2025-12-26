@@ -1,7 +1,7 @@
 {
   "id": "/",
   "name": "CrazyGames",
-  "short_name": "Oyunlar",
+  "short_name": "GameBox",
   "description": "Tarayıcıdan oynanabilen eğlenceli mini oyunlar",
 
   "start_url": "./index.html",
