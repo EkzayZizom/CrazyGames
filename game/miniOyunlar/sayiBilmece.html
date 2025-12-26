@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>2 Kişilik Sayı Tahmin Oyunu</title>
 <link rel="stylesheet" href="../style.css">
 <style>
@@ -43,6 +43,20 @@
   footer{margin-top:14px; display:flex; gap:8px; align-items:center; justify-content:space-between}
   .score{display:flex; gap:12px; align-items:center}
   .pill{background:rgba(255,255,255,0.03); padding:8px 10px; border-radius:999px}
+
+      html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+
+      overflow: hidden;        /* yukarı-aşağı + sağ-sol kilit */
+      overflow-x: hidden;
+      overflow-y: hidden;
+
+      touch-action: manipulation; /* mobilde zoom engelle */
+      overscroll-behavior: none;  /* lastik efekti kapat */
+    }
 </style>
 </head>
 
