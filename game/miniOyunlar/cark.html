@@ -67,19 +67,15 @@ canvas {
 /* OK */
 #pointer {
   position: absolute;
-  top: -18px;              /* çarkın üstünde */
+  top: -18px;
   left: 50%;
+  width: 0;
+  height: 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-bottom: 28px solid black;
   transform: translateX(-50%) rotate(180deg);
-}
-/* OK (işaretleyici) */
-#pointer {
-   position: absolute; 
-   width: 0; height: 0; 
-   border-left: 14px solid transparent; 
-   border-right: 14px solid transparent; 
-   border-bottom: 28px solid rgb(0, 0, 0); 
-   transform: translateX(-50%) rotate(180deg); 
-   z-index: 10; 
+  z-index: 10;
 }
 
 /* SONUÇ YAZISI */
@@ -198,18 +194,8 @@ function resizeCanvas() {
   center = radius;
 
   drawWheel();
-  updatePointer();
 }
 window.addEventListener("resize", resizeCanvas);
-
-/* POINTER KONUM */
-function updatePointer() {
-  const rect = canvas.getBoundingClientRect();
-  const pointer = document.getElementById("pointer");
-
-  pointer.style.top = (rect.top - 20) + "px"; 
-  pointer.style.left = (rect.left + rect.width / 2) + "px";
-}
 
 /* === ÇARK ÇİZ === */
 function drawWheel() {
@@ -400,7 +386,6 @@ document.getElementById("spin").onclick = spinWheel;
 
 /* === INIT === */
 resizeCanvas();
-updatePointer();
 /*---------------TEMA------------------*/
 function setTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
