@@ -71,6 +71,16 @@ canvas {
   left: 50%;
   transform: translateX(-50%) rotate(180deg);
 }
+/* OK (işaretleyici) */
+#pointer {
+   position: absolute; 
+   width: 0; height: 0; 
+   border-left: 14px solid transparent; 
+   border-right: 14px solid transparent; 
+   border-bottom: 28px solid rgb(0, 0, 0); 
+   transform: translateX(-50%) rotate(180deg); 
+   z-index: 10; 
+}
 
 /* SONUÇ YAZISI */
 #resultLabel {
