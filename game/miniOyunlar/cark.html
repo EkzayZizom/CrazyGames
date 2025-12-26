@@ -31,12 +31,11 @@ body {
 /* ÜST BUTONLAR */
 #topControls {
   display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-#mainMenuBtn {
-  margin-left: auto;   /* EN SAĞA ATAR */
+  justify-content: center; /* Yatayda ortalar */
+  align-items: center;     /* Dikeyde hizalar */
+  gap: 8px;                /* Butonlar arası boşluk */
+  margin: 10px 0;          /* Üstten ve alttan biraz boşluk */
+  width: 100%;             /* Alanın tamamını kaplamasını sağla */
 }
 button {
   padding: 8px 12px;
@@ -46,6 +45,7 @@ button {
   background: #4d79ff;
   color: white;
   cursor: pointer;
+  white-space: nowrap; /* Metnin alt satıra geçmesini engeller */
 }
 button:hover { background: #3650b3; }
 
