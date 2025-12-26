@@ -177,37 +177,41 @@
   #scoreboard {
     margin-left: 30px;
   }
+  .layout {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+  }
     /* ALT: BUTONLAR */
   .buttons {
-    position: relative;
     width: 100%;
     display: flex;
-    justify-content: center !important;
-    align-items: center;
-    gap: 16px;
+    justify-content: center;
     margin-top: 30px;
-    left: 0;
-    right: 0;
   }
 }
     </style>
 </head>
 <body>
 
-<div class="left-panel">
-  <h2>XOX</h2>
-  <div id="turn">Sıra: X</div>
-</div>
+<div class="layout">
+  <div class="left-panel">
+    <h2>XOX</h2>
+    <div id="turn">Sıra: X</div>
+  </div>
 
-<div class="game-area">
-    <div class="grid" id="board"></div>
-    
-    <div id="scoreboard">
-        <h3>Skor Tablosu</h3>
-        <p><span>Oyuncu X:</span> <span id="scoreX">0</span></p>
-        <p><span>Oyuncu O:</span> <span id="scoreO">0</span></p>
-        <p><span>Berabere:</span> <span id="scoreDraws">0</span></p>
-    </div>
+  <div class="game-area">
+      <div class="grid" id="board"></div>
+      
+      <div id="scoreboard">
+          <h3>Skor Tablosu</h3>
+          <p><span>Oyuncu X:</span> <span id="scoreX">0</span></p>
+          <p><span>Oyuncu O:</span> <span id="scoreO">0</span></p>
+          <p><span>Berabere:</span> <span id="scoreDraws">0</span></p>
+      </div>
+  </div>
 </div>
 
 <div class="buttons">
