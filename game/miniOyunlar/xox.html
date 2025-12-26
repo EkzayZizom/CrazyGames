@@ -2,7 +2,6 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <title>XOX</title>
     <link rel="stylesheet" href="../style.css">
@@ -107,10 +106,10 @@
         transition: background-color 0.2s, transform 0.2s;
     }
     
-    button:hover {
-        background-color: #ffff00;
-        color: #000033;
-        transform: scale(1.05);
+    @media (hover: none) {
+      button:hover {
+        transform: none;
+      }
     }
 
     /* Skor Tablosu Stili */
