@@ -1,7 +1,7 @@
 const cacheName = "mini-oyunlar";
 const coreFiles = [
-  "index.html",
-  "style.css"
+  "/index.html",
+  "/game/style.css"
 ];
 
 // install
