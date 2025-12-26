@@ -87,35 +87,48 @@
   html, body {
     height: 100%;
     overflow: hidden;
+    touch-action: manipulation; /* ekstra zoom engel */
   }
+
   body {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
     align-items: center;
-    gap: 10px;
-    padding: 12px 0;
-    transform: scale(1.15);
-    transform-origin: top center;
-  }
-
-  h2 {
-    margin: 0;
-    font-size: 28px;
+    gap: 12px;
+    padding: 10px;
   }
 
   .scene {
-    margin: 10px auto;
+    width: 220px;
+    height: 220px;
+  }
+
+  .dice,
+  .face {
+    width: 220px;
+    height: 220px;
+  }
+
+  .front  { transform: rotateY(0deg) translateZ(110px); }
+  .back   { transform: rotateY(180deg) translateZ(110px); }
+  .right  { transform: rotateY(90deg) translateZ(110px); }
+  .left   { transform: rotateY(-90deg) translateZ(110px); }
+  .top    { transform: rotateX(-90deg) translateZ(110px); }
+  .bottom { transform: rotateX(90deg) translateZ(110px); }
+
+  button {
+    font-size: 22px;
+    padding: 14px 34px;
+  }
+
+  h2 {
+    font-size: 28px;
+    margin: 0;
   }
 
   #result {
     font-size: 22px;
-    min-height: 28px; /* sonuç yokken zıplamasın */
-  }
-
-  button {
-    font-size: 22px;
-    padding: 14px 32px;
+    min-height: 28px;
   }
 }
 </style>
