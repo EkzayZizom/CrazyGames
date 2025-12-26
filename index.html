@@ -49,13 +49,18 @@
     .popBtn:hover {
       transform: scale(1.04);
     }
-    .baslikcolor{
-      color: #ff0000;
-      position: fixed;
-      top: 14px;
-      left: 50%;
-      transform: translateX(-50%);
-      margin: 0;
+    /* SAĞ-SOL KAYMA KİLİT */
+    html, body {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+      overscroll-behavior: none;
+    }
+
+    /* fixed başlık taşmasın */
+    .baslikcolor {
+      max-width: 100%;
+      white-space: nowrap;
     }
   </style>
 <script>
