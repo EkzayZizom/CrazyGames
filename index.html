@@ -9,30 +9,28 @@
   <meta name="theme-color" content="#22c55e">
 
   <style>
-    /* Popup Arka Plan */
-    #popupBg {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
+      /* Popup Arka Plan */
+      #popupBg {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.6);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+      /* Popup Kutu */
+      #popupBox {
+      background: var(--cardgenel,#0b1220);
+      padding: 25px;
+      width: 280px;
+      border-radius: 12px;
+      text-align: center;
+      color: var(--textgenel);
+      border: 2px solid var(--bordergenel);
+      display: flex;
+      flex-direction: column;
     }
-
-    /* Popup Kutu */
-  #popupBox {
-  background: var(--cardgenel,#0b1220);
-  padding: 25px;
-  width: 280px;
-  border-radius: 12px;
-  text-align: center;
-  color: var(--textgenel);
-  border: 2px solid var(--bordergenel);
-  display: flex;
-  flex-direction: column;
-}
-
 
     .popBtn {
       width: 100%;
