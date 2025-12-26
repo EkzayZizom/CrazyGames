@@ -4,10 +4,10 @@
   "short_name": "Oyunlar",
   "description": "Tarayıcıdan oynanabilen eğlenceli mini oyunlar",
 
-  "start_url": "../index.html",
-  "scope": "../",
+  "start_url": "/index.html",
+  "scope": "/",
 
-  "display": "fullscreen",
+  "display": "standalone",
   "orientation": "portrait",
   "lang": "tr",
 
@@ -16,17 +16,16 @@
 
   "icons": [
     {
-      "src": "icons/sun192.png",
+      "src": "/icons/sun192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icons/sun512.png",
+      "src": "/icons/sun512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
   ]
 }
-
