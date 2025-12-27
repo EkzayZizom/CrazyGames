@@ -7,11 +7,16 @@
 <link rel="stylesheet" href="../style.css">
 
 <style>
+/* 1. ADIM: Taşmayı küresel olarak engelle */
+* {
+  box-sizing: border-box;
+}
 html, body {
   width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
+  flex-direction: column;
 
   overflow: hidden;        /* yukarı-aşağı + sağ-sol kilit */
   overflow-x: hidden;
@@ -31,39 +36,35 @@ body {
 /* ÜST BUTONLAR */
 /* ÜST BUTONLARIN SARILDIĞI ALAN */
 /* ÜST BUTON ALANI GÜNCELLEME */
+/* Bu kısım her şeyin kutu içinde kalmasını sağlar, dışarı taşmayı önler */
 #topControls {
-  display: flex;
-  flex-wrap: wrap;           /* Sığmayan butonu alt satıra atar */
-  justify-content: center;    /* Yatayda tam orta */
-  align-items: center;        /* Dikeyde hizalı */
-  gap: 8px;                   /* Butonlar arası boşluk */
-  margin: 15px auto;          /* Üstten boşluk ve yatayda ortala */
-  padding: 0 10px;            /* Kenarlardan taşmayı önlemek için iç boşluk */
-  width: 100%;                /* Ekranın tamamını kullan */
-  max-width: 100vw;           /* Ekran genişliğini asla geçme */
-  box-sizing: border-box;     /* Padding'i genişliğe dahil et (Taşmayı önler) */
+  display: flex;         /* Butonları yan yana dizer */
+  flex-wrap: wrap;       /* Sığmazsa alt satıra atar */
+  justify-content: center; /* Hepsini ortalar */
+  gap: 10px;             /* Aralarındaki boşluk */
+  padding: 15px 5px;     /* Kenarlardan nefes payı */
+  width: 100%;           
 }
 
 button {
-  flex: 0 1 auto;             /* Butonların kendi boyutunu korumasını sağla */
-  padding: 10px 14px;
-  font-size: 13px;            /* Mobilde daha iyi sığması için hafif küçülttük */
+  padding: 10px 15px;    /* Tıklama alanı genişliği */
+  font-size: 14px;
   border: none;
   border-radius: 8px;
   background: #4d79ff;
   color: white;
+  white-space: nowrap;   /* Yazının kırılmasını önler */
   cursor: pointer;
-  white-space: nowrap;        /* Yazıların tek satır kalmasını sağlar */
-  touch-action: manipulation; /* Mobil tıklama hassasiyeti */
 }
 
 /* ÇARKIN KONUMU */
 #wheelContainer {
+  position: relative;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 40px;     /* Bu değeri 20'den 40'a çıkardık, ok için yer açtık */
 }
 
 /* CANVAS */
@@ -75,7 +76,7 @@ canvas {
 /* OK */
 #pointer {
   position: absolute;
-  top: -18px;
+  top: 0px;             /* -18px yerine 0 veya 5px yaparak çarkın içine/üstüne alıyoruz */
   left: 50%;
   width: 0;
   height: 0;
