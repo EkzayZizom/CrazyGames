@@ -82,7 +82,7 @@ canvas {
   height: 0;
   border-left: 14px solid transparent;
   border-right: 14px solid transparent;
-  border-bottom: 28px solid black;
+  border-bottom: 28px solid rgb(255, 0, 0);
   transform: translateX(-50%) rotate(180deg);
   z-index: 10;
 }
@@ -103,6 +103,7 @@ canvas {
   justify-content: center;
   align-items: center;
   z-index: 999;
+  text-color: black;
 }
 
 .overlay-content {
@@ -176,7 +177,7 @@ canvas {
 <!-- ÇARK LİSTESİ PANELİ -->
 <div class="overlay" id="listOverlay">
   <div class="overlay-content">
-    <h3>Mevcut Çarklar</h3>
+    <h3 style="color: black;">Mevcut Çarklar</h3>
     <div id="wheelList"></div>
     <button id="closeListOverlay" style="background:#ccc;color:#000;">Kapat</button>
   </div>
