@@ -7,74 +7,66 @@
 <link rel="stylesheet" href="../style.css">
 
 <style>
+/* 1. ADIM: Taşmayı küresel olarak engelle */
+* {
+  box-sizing: border-box;
+}
+
 html, body {
   width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
-
-  overflow: hidden;        /* yukarı-aşağı + sağ-sol kilit */
-  overflow-x: hidden;
-  overflow-y: hidden;
-
-  touch-action: manipulation; /* mobilde zoom engelle */
-  overscroll-behavior: none;  /* lastik efekti kapat */
-}
-body {
-  font-family: Arial;
-  margin: 0;
-  padding: 10px;
+  overflow: hidden; /* Dışarı taşan her şeyi gizle */
   background: var(--bggenel);
-  text-align: center;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column; /* Her şeyi yukarıdan aşağı diz */
 }
 
-/* ÜST BUTONLAR */
-/* ÜST BUTONLARIN SARILDIĞI ALAN */
-/* ÜST BUTON ALANI GÜNCELLEME */
-/* Bu kısım her şeyin kutu içinde kalmasını sağlar, dışarı taşmayı önler */
-* {
-  box-sizing: border-box;
-}
-
+/* 2. ADIM: Butonları kutu gibi düşün ve ortala */
 #topControls {
-  display: flex;         /* Butonları yan yana dizer */
-  flex-wrap: wrap;       /* Sığmazsa alt satıra atar */
-  justify-content: center; /* Hepsini ortalar */
-  gap: 10px;             /* Aralarındaki boşluk */
-  padding: 15px 5px;     /* Kenarlardan nefes payı */
-  width: 100%;           
+  display: flex;
+  flex-wrap: wrap;         /* Sığmazsa aşağı kaydır */
+  justify-content: center;  /* Yatayda tam ortala */
+  align-items: center;      /* Dikeyde hizala */
+  gap: 8px;                 /* Butonlar arası boşluk */
+  padding: 10px;            /* Kenarlardan boşluk */
+  width: 100%;              /* Ekran genişliğini kapla */
+  z-index: 100;             /* Hep en üstte kalsın */
 }
 
 button {
-  padding: 10px 15px;    /* Tıklama alanı genişliği */
-  font-size: 14px;
+  padding: 10px 14px;
+  font-size: 13px;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   background: #4d79ff;
   color: white;
-  white-space: nowrap;   /* Yazının kırılmasını önler */
   cursor: pointer;
+  white-space: nowrap;      /* Yazıların alt satıra geçmesini engelle */
+  flex: 0 1 auto;           /* Buton genişliği içeriğe göre olsun */
 }
 
-/* ÇARKIN KONUMU */
+/* 3. ADIM: Çarkın butonlara binmesini engelle */
 #wheelContainer {
-  width: 100%;
+  position: relative;
+  flex-grow: 1;            /* Kalan boşluğu kullan */
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 20px;
+  width: 100%;
 }
 
-/* CANVAS */
 canvas {
-  margin: 0;
+  max-width: 90vw;         /* Mobilde ekranın %90'ından büyük olmasın */
+  max-height: 90vw;
   display: block;
 }
 
-/* OK */
 #pointer {
   position: absolute;
-  top: -18px;
+  top: 10px;               /* Çarkın üstüne konumlandır */
   left: 50%;
   width: 0;
   height: 0;
@@ -85,54 +77,29 @@ canvas {
   z-index: 10;
 }
 
-/* SONUÇ YAZISI */
 #resultLabel {
-  margin-top: 20px;
-  font-size: 22px;
+  padding: 10px;
+  font-size: 20px;
   font-weight: bold;
+  color: #fff;
 }
 
-/* OVERLAY */
+/* OVERLAY AYARLARI (Aynen Kalabilir) */
 .overlay {
   position: fixed;
   top:0; left:0; right:0; bottom:0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.8);
   display: none;
   justify-content: center;
   align-items: center;
   z-index: 999;
 }
-
 .overlay-content {
   background: white;
-  padding: 15px;
+  padding: 20px;
   border-radius: 10px;
   width: 90%;
-  max-width: 420px;
-  max-height: 90%;
-  overflow-y: auto;
-}
-
-.segment-input {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-.color-preview {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 1px solid #333;
-}
-
-/* ÇARK LİSTESİ */
-#wheelList > div {
-  background: #eee;
-  padding: 8px;
-  margin-bottom: 6px;
-  border-radius: 8px;
+  max-width: 400px;
 }
 </style>
 </head>
@@ -142,8 +109,9 @@ canvas {
   <button id="spin">Çevir</button>
   <button id="newWheelBtn">Yeni Çark</button>
   <button id="showWheelListBtn">Liste</button>
+  <button onclick="goMenu()">Ana Menü</button>
 </div>
-<button onclick="goMenu()">Ana Menü</button>
+
 <div id="wheelContainer">
   <div id="pointer"></div>
   <canvas id="wheel"></canvas>
