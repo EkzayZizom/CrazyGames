@@ -29,33 +29,48 @@ body {
 }
 
 /* ÜST BUTONLAR */
+/* ÜST BUTONLARIN SARILDIĞI ALAN */
 #topControls {
   display: flex;
-  justify-content: center; /* Yatayda ortalar */
-  align-items: center;     /* Dikeyde hizalar */
-  gap: 8px;                /* Butonlar arası boşluk */
-  margin: 10px 0;          /* Üstten ve alttan biraz boşluk */
-  width: 100%;             /* Alanın tamamını kaplamasını sağla */
+  flex-wrap: wrap;      /* Butonlar sığmazsa alt satıra geçer */
+  justify-content: center;
+  align-items: center;
+  gap: 10px;            /* Butonlar arası boşluk */
+  padding: 15px 5px;    /* Üstten ve yanlardan nefes payı */
+  width: 100%;
+  box-sizing: border-box;
 }
+
 button {
-  padding: 8px 12px;
+  padding: 10px 16px;   /* Daha geniş tıklama alanı */
   font-size: 14px;
+  font-weight: 600;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #4d79ff;
   color: white;
   cursor: pointer;
-  white-space: nowrap; /* Metnin alt satıra geçmesini engeller */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Hafif derinlik */
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
-button:hover { background: #3650b3; }
 
-/* ÇARK ALANI */
+button:hover {
+  background: #3650b3;
+  transform: translateY(-1px); /* Üstüne gelince hafif yükselme */
+}
+
+button:active {
+  transform: translateY(1px);  /* Basınca içe çökme efekti */
+}
+
+/* Çark Konteynerini butonlardan biraz daha uzaklaştır */
 #wheelContainer {
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 10px;        /* butonların altı */
+  margin-top: 20px; 
 }
 
 /* CANVAS */
