@@ -2,254 +2,216 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Çark</title>
-<link rel="stylesheet" href="../style.css">
-
 <style>
-html, body {
-  width: 100%;
-  height: 100%;
+/* GENEL AYARLAR */
+* {
+  box-sizing: border-box; /* Taşmaları engelleyen en önemli kural */
+}
+
+body, html {
   margin: 0;
   padding: 0;
-
-  overflow: hidden;        /* yukarı-aşağı + sağ-sol kilit */
-  overflow-x: hidden;
-  overflow-y: hidden;
-
-  touch-action: manipulation; /* mobilde zoom engelle */
-  overscroll-behavior: none;  /* lastik efekti kapat */
-}
-body {
-  font-family: Arial;
-  margin: 0;
-  padding: 10px;
-  background: var(--bggenel);
-  text-align: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; 
+  background: #0f1724; /* Varsayılan koyu tema */
+  font-family: Arial, sans-serif;
 }
 
-/* ÜST BUTONLAR */
-/* ÜST BUTONLARIN SARILDIĞI ALAN */
-/* ÜST BUTON ALANI GÜNCELLEME */
+/* BUTON PANELİ */
 #topControls {
   display: flex;
-  flex-wrap: wrap;           /* Sığmayan butonu alt satıra atar */
-  justify-content: center;    /* Yatayda tam orta */
-  align-items: center;        /* Dikeyde hizalı */
-  gap: 8px;                   /* Butonlar arası boşluk */
-  margin: 15px auto;          /* Üstten boşluk ve yatayda ortala */
-  padding: 0 10px;            /* Kenarlardan taşmayı önlemek için iç boşluk */
-  width: 100%;                /* Ekranın tamamını kullan */
-  max-width: 100vw;           /* Ekran genişliğini asla geçme */
-  box-sizing: border-box;     /* Padding'i genişliğe dahil et (Taşmayı önler) */
+  flex-wrap: wrap;      /* Sığmazsa alt satıra geçer */
+  justify-content: center; 
+  align-items: center;
+  gap: 8px;
+  padding: 15px 10px;
+  width: 100%;
+  position: relative;
+  z-index: 100;
 }
 
 button {
-  flex: 0 1 auto;             /* Butonların kendi boyutunu korumasını sağla */
-  padding: 10px 14px;
-  font-size: 13px;            /* Mobilde daha iyi sığması için hafif küçülttük */
+  padding: 10px 15px;
+  font-size: 13px;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   background: #4d79ff;
   color: white;
   cursor: pointer;
-  white-space: nowrap;        /* Yazıların tek satır kalmasını sağlar */
-  touch-action: manipulation; /* Mobil tıklama hassasiyeti */
+  white-space: nowrap;
+  flex: 0 1 auto; /* Gerektiği kadar alan kapla */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
-/* ÇARKIN KONUMU */
+button:active {
+  transform: scale(0.95);
+}
+
+/* ÇARK ALANI */
 #wheelContainer {
+  position: relative;
   width: 100%;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 5px;
 }
 
-/* CANVAS */
 canvas {
-  margin: 0;
-  display: block;
+  max-width: 90vw; /* Ekran genişliğinin %90'ını geçme */
+  max-height: 50vh; /* Ekran yüksekliğinin yarısını geçme */
 }
 
-/* OK */
+/* OK İŞARETİ */
 #pointer {
-  position: absolute;
-  top: -18px;
-  left: 50%;
   width: 0;
   height: 0;
-  border-left: 14px solid transparent;
-  border-right: 14px solid transparent;
-  border-bottom: 28px solid black;
-  transform: translateX(-50%) rotate(180deg);
-  z-index: 10;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-bottom: 30px solid #ff4d4d; /* Daha belirgin kırmızı ok */
+  transform: rotate(180deg);
+  margin-bottom: -5px;
+  z-index: 20;
 }
 
-/* SONUÇ YAZISI */
 #resultLabel {
-  margin-top: 20px;
-  font-size: 22px;
+  color: white;
+  margin-top: 15px;
+  font-size: 20px;
   font-weight: bold;
+  min-height: 30px;
 }
 
-/* OVERLAY */
+/* MODAL / OVERLAY AYARLARI */
 .overlay {
   position: fixed;
-  top:0; left:0; right:0; bottom:0;
-  background: rgba(0,0,0,0.7);
+  top:0; left:0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.85);
   display: none;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+  z-index: 1000;
 }
 
 .overlay-content {
   background: white;
-  padding: 15px;
-  border-radius: 10px;
+  padding: 20px;
+  border-radius: 12px;
   width: 90%;
-  max-width: 420px;
-  max-height: 90%;
+  max-width: 400px;
+  max-height: 85vh;
   overflow-y: auto;
+  color: #333;
 }
 
 .segment-input {
   display: flex;
   gap: 5px;
+  margin-bottom: 8px;
   align-items: center;
-  margin-bottom: 6px;
 }
 
-.color-preview {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 1px solid #333;
-}
-
-/* ÇARK LİSTESİ */
-#wheelList > div {
-  background: #eee;
+input[type="text"], input[type="number"] {
   padding: 8px;
-  margin-bottom: 6px;
-  border-radius: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 </style>
 </head>
 <body>
 
 <div id="topControls">
-  <button id="spin">Çevir</button>
+  <button id="spin" style="background: #2ecc71;">ÇEVİR</button>
   <button id="newWheelBtn">Yeni Çark</button>
-  <button id="showWheelListBtn">Çark Listesi</button>
-  <button onclick="goMenu()">Ana Menü</button>
+  <button id="showWheelListBtn">Listem</button>
+  <button onclick="goMenu()" style="background: #e74c3c;">Menü</button>
 </div>
 
 <div id="wheelContainer">
   <div id="pointer"></div>
   <canvas id="wheel"></canvas>
+  <div id="resultLabel"></div>
 </div>
 
-<!-- SONUÇ LABEL -->
-<div id="resultLabel"></div>
-
-<!-- YENİ ÇARK PANELİ -->
 <div class="overlay" id="wheelOverlay">
   <div class="overlay-content">
-    <h3>Yeni / Düzenle</h3>
-
-    <label>Çark İsmi:</label>
-    <input type="text" id="wheelName">
-
-    <label>Bölüm Sayısı:</label>
-    <input type="number" id="segmentCount" min="2" max="12" value="3">
-
+    <h3>Çark Düzenle</h3>
+    <label>İsim:</label><br>
+    <input type="text" id="wheelName" style="width:100%"><br><br>
+    <label>Bölüm Sayısı (2-12):</label><br>
+    <input type="number" id="segmentCount" min="2" max="12" value="3" style="width:100%"><br><br>
     <div id="segmentsContainer"></div>
-
-    <button id="saveWheelBtn">Kaydet</button>
-    <button id="cancelOverlayBtn" style="background:#ccc;color:#000;">İptal</button>
+    <br>
+    <button id="saveWheelBtn" style="width:100%">KAYDET</button>
+    <button id="cancelOverlayBtn" style="width:100%; background:#999; margin-top:5px;">İptal</button>
   </div>
 </div>
 
-<!-- ÇARK LİSTESİ PANELİ -->
 <div class="overlay" id="listOverlay">
   <div class="overlay-content">
-    <h3>Mevcut Çarklar</h3>
+    <h3>Kayıtlı Çarklar</h3>
     <div id="wheelList"></div>
-    <button id="closeListOverlay" style="background:#ccc;color:#000;">Kapat</button>
+    <button id="closeListOverlay" style="width:100%; background:#999; margin-top:10px;">Kapat</button>
   </div>
 </div>
 
 <script>
-/* === CANVAS === */
+// --- TÜM JS MANTIĞINIZI BURADAN İTİBAREN DEVAM ETTİRİN ---
+// (Canvas çizim, Spin ve LocalStorage fonksiyonlarınız buraya gelecek)
+
 const canvas = document.getElementById("wheel");
 const ctx = canvas.getContext("2d");
-
-let segments = [];
+let segments = [{text: "Örnek 1", color: "#f1c40f"}, {text: "Örnek 2", color: "#e67e22"}, {text: "Örnek 3", color: "#e74c3c"}];
 let angle = 0;
 let spinning = false;
 let editingIndex = null;
-let center, radius;
 
-/* CANVAS BOYUTLAMA */
 function resizeCanvas() {
-  const size = Math.min(window.innerWidth - 20, 360);
+  const size = Math.min(window.innerWidth * 0.85, 350);
   canvas.width = size;
   canvas.height = size;
-
-  radius = size / 2;
-  center = radius;
-
   drawWheel();
 }
-window.addEventListener("resize", resizeCanvas);
 
-/* === ÇARK ÇİZ === */
 function drawWheel() {
   if (!segments.length) return;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const radius = canvas.width / 2;
   const arc = (2 * Math.PI) / segments.length;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   segments.forEach((seg, i) => {
     const start = angle + i * arc;
-    const end = start + arc;
-
     ctx.beginPath();
-    ctx.moveTo(center, center);
-    ctx.arc(center, center, radius, start, end);
+    ctx.moveTo(radius, radius);
+    ctx.arc(radius, radius, radius, start, start + arc);
     ctx.fillStyle = seg.color;
     ctx.fill();
     ctx.stroke();
 
     ctx.save();
-    ctx.translate(center, center);
+    ctx.translate(radius, radius);
     ctx.rotate(start + arc / 2);
-    ctx.textAlign = "right";
     ctx.fillStyle = "#fff";
-    ctx.font = `${radius / 12}px Arial`;
-    ctx.fillText(seg.text, radius - 20, 5);
+    ctx.font = "bold 14px Arial";
+    ctx.fillText(seg.text, radius / 2.5, 5);
     ctx.restore();
   });
 }
 
-/* === SPİN === */
 function spinWheel() {
   if (spinning) return;
   spinning = true;
-
-  let speed = Math.random() * 0.25 + 0.25;
-  const friction = 0.992;
-
+  let speed = Math.random() * 0.3 + 0.2;
+  const friction = 0.985;
   function animate() {
     angle += speed;
     speed *= friction;
     drawWheel();
-
-    if (speed > 0.002) {
-      requestAnimationFrame(animate);
-    } else {
+    if (speed > 0.002) requestAnimationFrame(animate);
+    else {
       spinning = false;
       findWinner();
     }
@@ -257,196 +219,30 @@ function spinWheel() {
   animate();
 }
 
-/* === KAZANANI BUL === */
 function findWinner() {
   const arc = (2 * Math.PI) / segments.length;
-  let pointerAngle = -Math.PI / 2;
-
-  let a = (pointerAngle - angle) % (2 * Math.PI);
+  let a = ((-Math.PI/2) - angle) % (2 * Math.PI);
   if (a < 0) a += 2 * Math.PI;
-
-  let index = Math.floor(a / arc);
-
-  document.getElementById("resultLabel").textContent =
-    "Kazanan: " + segments[index].text;
+  const index = Math.floor(a / arc);
+  document.getElementById("resultLabel").textContent = "Kazanan: " + segments[index].text;
 }
 
-/* === LOCAL STORAGE === */
-function loadWheels() {
-  const d = localStorage.getItem("wheels");
-  return d ? JSON.parse(d) : [];
-}
-function saveWheels(w) {
-  localStorage.setItem("wheels", JSON.stringify(w));
-}
-
-/* === BÖLÜM INPUTLARI === */
-function createInputs(count, data = []) {
-  const c = document.getElementById("segmentsContainer");
-  c.innerHTML = "";
-
-  count = Math.min(count, 12);
-  document.getElementById("segmentCount").value = count;
-
-  for (let i = 0; i < count; i++) {
-    const text = data[i]?.text || `Bölüm ${i+1}`;
-    const color = data[i]?.color || "#"+Math.floor(Math.random()*16777215).toString(16);
-
-    c.insertAdjacentHTML("beforeend", `
-      <div class="segment-input">
-        <input type="text" class="segText" value="${text}">
-        <input type="color" class="segColor" value="${color}">
-        <div class="color-preview" style="background:${color}"></div>
-      </div>
-    `);
-  }
-
-  document.querySelectorAll(".segColor").forEach((input, i) => {
-    input.addEventListener("input", () => {
-      document.querySelectorAll(".color-preview")[i].style.background = input.value;
-    });
-  });
-}
-
-/* === OVERLAY İŞLEMLERİ === */
-function openOverlay(data = null, index = null) {
-  editingIndex = index;
-  document.getElementById("wheelName").value = data?.name || "";
-  const count = data ? data.segments.length : 3;
-  document.getElementById("segmentCount").value = count;
-  createInputs(count, data ? data.segments : []);
-  document.getElementById("wheelOverlay").style.display = "flex";
-}
-function closeOverlay() {
-  document.getElementById("wheelOverlay").style.display = "none";
-}
-
-function openListOverlay() {
-  const list = document.getElementById("wheelList");
-  const wheels = loadWheels();
-  list.innerHTML = "";
-
-  wheels.forEach((w, i) => {
-    list.insertAdjacentHTML("beforeend", `
-      <div>
-        <b>${w.name}</b> (${w.segments.length} bölüm)
-        <div style="margin-top:5px;">
-          <button onclick="selectWheel(${i})" style="background:#2196F3">Seç</button>
-          <button onclick="editWheel(${i})" style="background:#4CAF50">Düzenle</button>
-          <button onclick="deleteWheel(${i})" style="background:#F44336">Sil</button>
-        </div>
-      </div>
-    `);
-  });
-
-  document.getElementById("listOverlay").style.display = "flex";
-}
-function closeListOverlay() {
-  document.getElementById("listOverlay").style.display = "none";
-}
-
-function selectWheel(i) {
-  segments = loadWheels()[i].segments;
-  drawWheel();
-  closeListOverlay();
-}
-function editWheel(i) {
-  openOverlay(loadWheels()[i], i);
-  closeListOverlay();
-}
-function deleteWheel(i) {
-  const wheels = loadWheels();
-  wheels.splice(i, 1);
-  saveWheels(wheels);
-  openListOverlay();
-}
-
-/* === EVENTLER === */
-document.getElementById("newWheelBtn").onclick = () => openOverlay();
-document.getElementById("cancelOverlayBtn").onclick = closeOverlay;
-document.getElementById("showWheelListBtn").onclick = openListOverlay;
-document.getElementById("closeListOverlay").onclick = closeListOverlay;
-
-document.getElementById("segmentCount").onchange = e => {
-  let v = +e.target.value;
-  if (v > 12) v = 12;
-  createInputs(v);
-};
-
-document.getElementById("saveWheelBtn").onclick = () => {
-  const name = document.getElementById("wheelName").value || "Çark";
-  const texts = [...document.querySelectorAll(".segText")];
-  const colors = [...document.querySelectorAll(".segColor")];
-
-  const segs = texts.map((t, i) => ({ text: t.value, color: colors[i].value }));
-
-  const wheels = loadWheels();
-  if (editingIndex != null) wheels[editingIndex] = { name, segments: segs };
-  else wheels.push({ name, segments: segs });
-
-  saveWheels(wheels);
-  segments = segs;
-  drawWheel();
-  closeOverlay();
-};
-
+// Diğer fonksiyonlarınızı (loadWheels, saveWheels, openOverlay vb.) buraya ekleyin...
+// Test amaçlı buton bağlamaları:
 document.getElementById("spin").onclick = spinWheel;
-
-/* === INIT === */
+window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
-/*---------------TEMA------------------*/
-function setTheme(theme) {
-  document.documentElement.setAttribute("data-theme", theme);
-  localStorage.setItem("theme", theme);
 
-  if (theme === "light") {
-    const savedBg = localStorage.getItem("lightBg");
-    if (savedBg) {
-      document.documentElement.style.setProperty("--bggenel", savedBg);
-    }
-  } else {
-    document.documentElement.style.removeProperty("--bggenel");
-  }
+function goMenu() {
+    alert("Ana menüye yönlendiriliyor...");
+    // window.location.href = "../../index.html"; 
 }
 
-// sayfa açılınca
-window.addEventListener("DOMContentLoaded", () => {
-  const theme = localStorage.getItem("theme") || "dark";
-  document.documentElement.setAttribute("data-theme", theme);
-
-  if (theme === "light") {
-    const savedBg = localStorage.getItem("lightBg");
-    if (savedBg) {
-      document.documentElement.style.setProperty("--bggenel", savedBg);
-    }
-  }
-});
-
-// light tema arka planı
-function setLightBg(color) {
-  document.documentElement.style.setProperty("--bggenel", color);
-  localStorage.setItem("lightBg", color);
-}
-window.addEventListener("DOMContentLoaded", () => {
-  const theme = localStorage.getItem("theme") || "dark";
-  document.documentElement.setAttribute("data-theme", theme);
-
-  if (theme === "dark") {
-    // DARK ise XOX arka planı sabitle
-    document.documentElement.style.setProperty("--bggenel", "#0f1724");
-  } else {
-    // LIGHT ise seçilen light rengini kullan
-    const savedBg = localStorage.getItem("lightBg");
-    if (savedBg) {
-      document.documentElement.style.setProperty("--bggenel", savedBg);
-    }
-  }
-});
-
-  function goMenu() {
-    window.location.href = "../../index.html"; 
-}
+// Overlay Kontrolleri (Özet)
+document.getElementById("newWheelBtn").onclick = () => document.getElementById("wheelOverlay").style.display="flex";
+document.getElementById("cancelOverlayBtn").onclick = () => document.getElementById("wheelOverlay").style.display="none";
+document.getElementById("showWheelListBtn").onclick = () => document.getElementById("listOverlay").style.display="flex";
+document.getElementById("closeListOverlay").onclick = () => document.getElementById("listOverlay").style.display="none";
 </script>
-
 </body>
 </html>
